@@ -77,7 +77,7 @@ function KeyboardArea({ children }: { children?: React.ReactNode }) {
     data: { type: 'keyboard-area' }
   });
   return (
-    <div ref={setNodeRef} className="flex-none bg-neutral-900 rounded-xl p-4 shadow-2xl border border-neutral-700">
+    <div ref={setNodeRef} className="flex-none bg-neutral-900 rounded-xl p-1 sm:p-4 shadow-2xl border border-neutral-700">
       {children}
     </div>
   );
@@ -296,7 +296,7 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
 
   if (gameFinished) {
       return (
-          <div className="h-screen w-full flex flex-col items-center justify-center bg-neutral-900 text-white p-4">
+          <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-neutral-900 text-white p-4">
               <div className="bg-neutral-800 p-8 rounded-2xl shadow-2xl flex flex-col items-center border border-neutral-700 animate-bounce-in">
                   <h2 className="text-4xl font-bold mb-6">Молодец!</h2>
                   <div className="flex gap-2 mb-8">
@@ -327,15 +327,15 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
       onDragEnd={handleDragEnd}
       autoScroll={false} 
     >
-      <div className="h-screen flex flex-col items-center py-4 font-sans select-none overflow-hidden bg-neutral-900">
+      <div className="h-[100dvh] flex flex-col items-center py-2 sm:py-4 font-sans select-none overflow-hidden bg-neutral-900">
         
-        <div className="w-full max-w-[95vw] lg:max-w-6xl flex flex-col gap-4 h-full flex-1">
+        <div className="w-full max-w-[95vw] lg:max-w-6xl flex flex-col gap-2 sm:gap-4 h-full flex-1">
           
           {/* Header */}
           <div className="flex w-full items-center justify-between px-2">
              <button 
                 onClick={onBack}
-                className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg"
+                className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg flex-none"
              >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
@@ -343,24 +343,24 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
              </button>
              
              {/* Task Prompt Display */}
-             <div className="text-2xl text-white font-bold tracking-widest hidden sm:block">
+             <div className="text-xl sm:text-2xl text-white font-bold tracking-widest text-center px-2 flex-1 truncate">
                  {task ? task.text.replace(/-/g, '').toUpperCase() : ''}
              </div>
 
              <button 
                 onClick={() => announceTask(tasks[currentTaskIndex])}
-                className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg flex items-center gap-2 shadow-lg active:scale-95 transition-transform"
+                className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg flex items-center gap-2 shadow-lg active:scale-95 transition-transform flex-none"
                 title="Повторить задание"
              >
                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
                </svg>
-               <span className="font-bold text-sm sm:text-base">Повторить</span>
+               <span className="font-bold text-sm sm:text-base hidden sm:inline">Повторить</span>
              </button>
           </div>
 
           {/* Grid Area */}
-          <div className="flex-1 bg-neutral-900 rounded-xl p-2 sm:p-4 shadow-2xl border border-neutral-700 flex flex-col justify-center relative">
+          <div className="flex-1 bg-neutral-900 rounded-xl p-1 sm:p-4 shadow-2xl border border-neutral-700 flex flex-col justify-center relative">
             <div className="grid w-full mx-auto" style={gridStyle}>
               {Array.from({ length: TOTAL_CELLS }).map((_, index) => {
                 const item = gridState[index];
@@ -382,7 +382,7 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
           </div>
 
           {/* Progress Indicators */}
-          <div className="flex items-center justify-center gap-4 py-2">
+          <div className="flex items-center justify-center gap-2 sm:gap-4 py-1 sm:py-2">
              {completedSteps.map((isComplete, idx) => (
                  <div 
                     key={idx}

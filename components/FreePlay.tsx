@@ -67,7 +67,7 @@ function KeyboardArea({ children }: { children?: React.ReactNode }) {
     data: { type: 'keyboard-area' }
   });
   return (
-    <div ref={setNodeRef} className="flex-none bg-neutral-900 rounded-xl p-4 shadow-2xl border border-neutral-700">
+    <div ref={setNodeRef} className="flex-none bg-neutral-900 rounded-xl p-1 sm:p-4 shadow-2xl border border-neutral-700">
       {children}
     </div>
   );
@@ -295,7 +295,7 @@ export default function FreePlay({ onBack }: FreePlayProps) {
       onDragEnd={handleDragEnd}
       autoScroll={false} 
     >
-      <div className="h-screen flex flex-col items-center py-4 font-sans select-none overflow-hidden">
+      <div className="h-[100dvh] flex flex-col items-center py-4 font-sans select-none overflow-hidden">
         
         <div className="w-full max-w-[95vw] lg:max-w-6xl flex flex-col gap-6 h-full flex-1">
           
@@ -345,7 +345,7 @@ export default function FreePlay({ onBack }: FreePlayProps) {
           </div>
 
           {/* TOP AREA: Grid */}
-          <div className="flex-1 bg-neutral-900 rounded-xl p-2 sm:p-4 shadow-2xl border border-neutral-700 flex flex-col justify-center relative">
+          <div className="flex-1 bg-neutral-900 rounded-xl p-1 sm:p-4 shadow-2xl border border-neutral-700 flex flex-col justify-center relative">
             <div 
               className="grid w-full mx-auto"
               style={gridStyle}

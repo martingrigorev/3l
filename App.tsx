@@ -36,7 +36,7 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen w-full flex flex-col sm:flex-row bg-neutral-900 overflow-hidden">
+    <div className="h-[100dvh] w-full flex flex-col sm:flex-row bg-neutral-900 overflow-hidden">
       
       {/* Top/Left Half - Free Play */}
       <div 
