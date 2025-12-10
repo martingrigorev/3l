@@ -19,7 +19,7 @@ import { DroppableCell } from './DroppableCell';
 import { DraggableItem } from './DraggableItem';
 import { Tile } from './Tile';
 import { playSound, speakText, initVoices } from '../audio';
-import { LEARNING_DATA } from '../learningData';
+import { LEARNING_DATA, WORD_EMOJIS } from '../learningData';
 import { saveLetterScore } from '../storage';
 
 // Gap in pixels used for both Grid and Keyboard to ensure alignment
@@ -317,6 +317,9 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
       );
   }
 
+  const currentTaskText = tasks[currentTaskIndex]?.text.replace(/-/g, '');
+  const currentEmoji = currentTaskText ? WORD_EMOJIS[currentTaskText.toLowerCase()] : null;
+
   return (
     <DndContext 
       sensors={sensors} 
@@ -341,8 +344,15 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
              </button>
              
              {/* Task Prompt Display */}
-             <div className="text-2xl text-white font-bold tracking-widest hidden sm:block">
-                 {tasks[currentTaskIndex]?.text.replace(/-/g, '').toUpperCase()}
+             <div className="flex items-center gap-3">
+               <div className="text-2xl text-white font-bold tracking-widest hidden sm:block">
+                   {currentTaskText.toUpperCase()}
+               </div>
+               {currentEmoji && (
+                  <span className="text-3xl sm:text-4xl filter drop-shadow-lg" role="img" aria-label={currentTaskText}>
+                    {currentEmoji}
+                  </span>
+               )}
              </div>
 
              <button 
