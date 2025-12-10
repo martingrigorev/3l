@@ -44,7 +44,6 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
         return <div ref={setNodeRef} className="w-full h-full opacity-0" />; 
     }
     // For keyboard, we keep the original visible, so we render it normally but maybe slightly dimmed or just static
-    // Actually, dnd-kit handles the overlay separately. We just render the static one here.
     return (
         <div ref={setNodeRef} className="w-full h-full opacity-50">
              <Tile char={char} />
@@ -54,6 +53,7 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
 
   return (
     <div 
+      id={id} 
       ref={setNodeRef} 
       {...listeners} 
       {...attributes} 

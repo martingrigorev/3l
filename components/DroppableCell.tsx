@@ -12,12 +12,15 @@ export const DroppableCell: React.FC<DroppableCellProps> = ({ index, children })
     data: { index, type: 'cell' },
   });
 
+  // Mobile: aspect-[0.66] (taller)
+  // Desktop: aspect-square (original)
   return (
     <div
       ref={setNodeRef}
-      className={`relative aspect-square border border-gray-700 rounded-sm transition-colors duration-200 ${
-        isOver ? 'bg-gray-500/50' : 'bg-gray-800/30'
-      }`}
+      className={`relative border border-gray-700 rounded-sm transition-colors duration-200 
+        aspect-[0.66] md:aspect-square
+        ${isOver ? 'bg-gray-500/50' : 'bg-gray-800/30'}
+      `}
     >
       {children}
     </div>

@@ -13,7 +13,7 @@ import {
   pointerWithin,
   CollisionDetection,
 } from '@dnd-kit/core';
-import { GRID_COLS, GRID_ROWS, TOTAL_CELLS, KEYBOARD_LAYOUT } from '../constants';
+import { GRID_COLS, GRID_ROWS, MOBILE_GRID_ROWS, TOTAL_CELLS, KEYBOARD_LAYOUT } from '../constants';
 import { GridState, DragData } from '../types';
 import { DroppableCell } from './DroppableCell';
 import { DraggableItem } from './DraggableItem';
@@ -40,20 +40,24 @@ interface ToolbarButtonProps {
 
 const ToolbarButton: React.FC<ToolbarButtonProps> = ({ color, icon, onClick, label, disabled }) => {
   let colorClasses = "";
-  if (color === 'red') colorClasses = "bg-red-600 border-red-800 hover:bg-red-500 active:border-b-0 active:translate-y-[4px]";
-  if (color === 'green') colorClasses = "bg-green-600 border-green-800 hover:bg-green-500 active:border-b-0 active:translate-y-[4px]";
-  if (color === 'blue') colorClasses = "bg-blue-600 border-blue-800 hover:bg-blue-500 active:border-b-0 active:translate-y-[4px]";
-  if (color === 'gray') colorClasses = "bg-gray-500 border-gray-700 hover:bg-gray-400 active:border-b-0 active:translate-y-[4px]";
+  // Added desktop border colors for 3D effect
+  if (color === 'red') colorClasses = "bg-red-600 hover:bg-red-500 active:opacity-80 md:border-red-800";
+  if (color === 'green') colorClasses = "bg-green-600 hover:bg-green-500 active:opacity-80 md:border-green-800";
+  if (color === 'blue') colorClasses = "bg-blue-600 hover:bg-blue-500 active:opacity-80 md:border-blue-800";
+  if (color === 'gray') colorClasses = "bg-gray-500 hover:bg-gray-400 active:opacity-80 md:border-gray-700";
   
   if (disabled) {
-    colorClasses = "bg-gray-600 border-gray-800 opacity-50 cursor-not-allowed";
+    colorClasses = "bg-gray-600 opacity-50 cursor-not-allowed md:border-gray-800";
   }
 
+  // Added md:border-b-4 and active translation logic
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`relative h-12 sm:h-14 flex-1 flex items-center justify-center font-bold text-white rounded shadow-sm select-none border-b-4 transition-all ${colorClasses}`}
+      className={`relative h-12 sm:h-14 flex-1 flex items-center justify-center font-bold text-white rounded-sm select-none transition-all 
+      md:rounded-lg md:border-b-4 md:active:border-b-0 md:active:translate-y-1
+      ${colorClasses}`}
     >
       {icon}
       {label && <span className="ml-2 text-xs sm:text-base hidden sm:inline">{label}</span>}
@@ -67,7 +71,7 @@ function KeyboardArea({ children }: { children?: React.ReactNode }) {
     data: { type: 'keyboard-area' }
   });
   return (
-    <div ref={setNodeRef} className="flex-none bg-neutral-900 rounded-xl p-0 sm:p-4 shadow-2xl border border-neutral-700">
+    <div ref={setNodeRef} className="flex-none bg-neutral-900 w-full">
       {children}
     </div>
   );
@@ -141,9 +145,13 @@ export default function FreePlay({ onBack }: FreePlayProps) {
   const [history, setHistory] = useState<GridState[]>([]);
   const [activeDragData, setActiveDragData] = useState<DragData | null>(null);
   const [dragSize, setDragSize] = useState<{width: number, height: number} | null>(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
     initVoices();
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const sensors = useSensors(
@@ -286,6 +294,10 @@ export default function FreePlay({ onBack }: FreePlayProps) {
   const keyWidthStyle = {
     width: `calc((100% - ${(GRID_COLS - 1) * GAP_PX}px) / ${GRID_COLS})`
   };
+  
+  // Determine dynamic row count based on device
+  const activeRowCount = isMobile ? MOBILE_GRID_ROWS : GRID_ROWS;
+  const activeTotalCells = activeRowCount * GRID_COLS;
 
   return (
     <DndContext 
@@ -295,7 +307,8 @@ export default function FreePlay({ onBack }: FreePlayProps) {
       onDragEnd={handleDragEnd}
       autoScroll={false} 
     >
-      <div className="h-[100dvh] flex flex-col items-center py-4 font-sans select-none overflow-hidden bg-neutral-900">
+      {/* Mobile: pb-8, Desktop: md:pb-4 */}
+      <div className="h-[100dvh] flex flex-col items-center py-4 pb-8 md:pb-4 font-sans select-none overflow-hidden bg-neutral-900">
         
         <div className="w-full max-w-[95vw] lg:max-w-6xl flex flex-col gap-6 h-full flex-1">
           
@@ -345,12 +358,12 @@ export default function FreePlay({ onBack }: FreePlayProps) {
           </div>
 
           {/* TOP AREA: Grid */}
-          <div className="flex-1 bg-neutral-900 rounded-xl p-1 sm:p-4 shadow-2xl border border-neutral-700 flex flex-col justify-center relative">
+          <div className="flex-1 bg-neutral-900 rounded-xl p-1 sm:p-4 flex flex-col justify-center relative">
             <div 
               className="grid w-full mx-auto"
               style={gridStyle}
             >
-              {Array.from({ length: TOTAL_CELLS }).map((_, index) => {
+              {Array.from({ length: activeTotalCells }).map((_, index) => {
                 const item = gridState[index];
                 return (
                   <DroppableCell key={index} index={index}>
@@ -376,10 +389,11 @@ export default function FreePlay({ onBack }: FreePlayProps) {
               {KEYBOARD_LAYOUT.map((row, rowIndex) => (
                 <div key={rowIndex} className="flex gap-[2px] justify-center w-full">
                   {row.map((char) => (
+                    // Taller keys on mobile (0.66), square on desktop (1)
                     <div 
                       key={char} 
-                      className="aspect-square relative"
-                      style={keyWidthStyle}
+                      className="relative"
+                      style={{...keyWidthStyle, aspectRatio: isMobile ? '0.66' : '1'}}
                     >
                       <DraggableItem
                         id={`keyboard-${char}`}

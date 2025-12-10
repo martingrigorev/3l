@@ -99,25 +99,25 @@ export const playSound = (type: 'grab' | 'drop' | 'rustle' | 'success' | 'fanfar
       osc.stop(startTime + 0.6);
     });
   } else if (type === 'fanfare') {
-    // Louder, celebratory fanfare with dual oscillators for brassy tone
+    // Softer, quieter, shorter fanfare
     
     const playTone = (freq: number, startTime: number, duration: number, volume: number) => {
       // SAFETY CHECK: Ensure start time is never negative relative to context
       const safeStart = Math.max(0, startTime);
       
       const osc = ctx.createOscillator();
-      osc.type = 'sawtooth'; // Sawtooth for brass
+      osc.type = 'triangle'; // Triangle is much softer than Sawtooth
       osc.frequency.value = freq;
       
-      // Second oscillator for thickness/chorus effect (louder sound)
+      // Second oscillator for thickness but using Sine for body
       const osc2 = ctx.createOscillator();
-      osc2.type = 'square';
-      osc2.detune.value = 5; // Slight detune
+      osc2.type = 'sine'; 
+      osc2.detune.value = 3; 
       osc2.frequency.value = freq;
 
       const filter = ctx.createBiquadFilter();
       filter.type = 'lowpass';
-      filter.frequency.value = 3000;
+      filter.frequency.value = 1500; // Lower cutoff for softer sound
 
       const noteGain = ctx.createGain();
       
@@ -126,18 +126,16 @@ export const playSound = (type: 'grab' | 'drop' | 'rustle' | 'success' | 'fanfar
       filter.connect(noteGain);
       noteGain.connect(ctx.destination);
       
-      const attack = 0.05;
-      const release = 0.1;
+      const attack = 0.08; // Slightly longer attack for smoothness
+      const release = 0.2;
       
       const attackEnd = safeStart + attack;
-      // Ensure release doesn't start before attack ends
-      // Math.max guarantees we don't go backwards in time
       let releaseStart = safeStart + duration - release;
       if (releaseStart < attackEnd) {
           releaseStart = attackEnd;
       }
       
-      const stopTime = safeStart + duration + 0.2; // Extra tail
+      const stopTime = safeStart + duration + 0.2; 
 
       // Volume envelope
       noteGain.gain.setValueAtTime(0, safeStart);
@@ -151,19 +149,17 @@ export const playSound = (type: 'grab' | 'drop' | 'rustle' | 'success' | 'fanfar
       osc2.stop(stopTime);
     };
 
-    // Intro Notes (Dun-Dun-Dun) - Adjusted volume
-    const noteDur = 0.18;
-    // Decreased volume from 0.35 to 0.15
-    const introVol = 0.15;
+    // Intro Notes (Dun-Dun-Dun)
+    const noteDur = 0.15; // Shorter notes
+    const introVol = 0.08; // Quieter
     playTone(523.25, now, noteDur, introVol); // C5
-    playTone(659.25, now + 0.2, noteDur, introVol); // E5
-    playTone(523.25, now + 0.4, noteDur, introVol); // C5
+    playTone(659.25, now + 0.15, noteDur, introVol); // E5
+    playTone(523.25, now + 0.3, noteDur, introVol); // C5
 
     // Big Final Chord (DAAAA!)
-    const chordStart = now + 0.6;
-    const chordDur = 2.5;
-    // Decreased volume from 0.25 to 0.1 per note (since 4 notes play simultaneously)
-    const chordVol = 0.1; 
+    const chordStart = now + 0.45;
+    const chordDur = 1.5; // Shortened from 2.5
+    const chordVol = 0.06; // Much quieter as they sum up
 
     playTone(523.25, chordStart, chordDur, chordVol); // C5
     playTone(659.25, chordStart, chordDur, chordVol); // E5

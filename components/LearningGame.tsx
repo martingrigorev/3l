@@ -13,7 +13,7 @@ import {
   pointerWithin,
   CollisionDetection,
 } from '@dnd-kit/core';
-import { GRID_COLS, GRID_ROWS, TOTAL_CELLS, KEYBOARD_LAYOUT } from '../constants';
+import { GRID_COLS, GRID_ROWS, MOBILE_GRID_ROWS, TOTAL_CELLS, KEYBOARD_LAYOUT } from '../constants';
 import { GridState, DragData } from '../types';
 import { DroppableCell } from './DroppableCell';
 import { DraggableItem } from './DraggableItem';
@@ -43,7 +43,7 @@ const checkGridForWord = (state: GridState, targetWord: string): boolean => {
   // Normalize target (remove dashes for syllables like "а-м" -> "ам")
   const cleanTarget = targetWord.replace(/-/g, '').toLowerCase();
   
-  // We scan rows
+  // We scan rows (using the full constant GRID_ROWS, which is fine as extra rows are empty on mobile)
   for (let r = 0; r < GRID_ROWS; r++) {
     let rowChars: string[] = [];
     for (let c = 0; c < GRID_COLS; c++) {
@@ -76,8 +76,9 @@ function KeyboardArea({ children }: { children?: React.ReactNode }) {
     id: 'keyboard-area',
     data: { type: 'keyboard-area' }
   });
+  // Removed padding, shadows, borders for flat look
   return (
-    <div ref={setNodeRef} className="flex-none bg-neutral-900 rounded-xl p-0 sm:p-4 shadow-2xl border border-neutral-700">
+    <div ref={setNodeRef} className="flex-none bg-neutral-900 w-full">
       {children}
     </div>
   );
@@ -105,6 +106,7 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
   const [gridState, setGridState] = useState<GridState>({});
   const [activeDragData, setActiveDragData] = useState<DragData | null>(null);
   const [dragSize, setDragSize] = useState<{width: number, height: number} | null>(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   
   // Game State
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -137,6 +139,11 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
     setTimeout(() => {
         announceTask(gameTasks[0]);
     }, 800);
+
+    // Resize listener
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
 
   }, [letter]);
 
@@ -191,7 +198,7 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
     let nextState = { ...gridState };
     let didChange = false;
 
-    // Handle Drop Logic (Same as FreePlay basically)
+    // Handle Drop Logic
     if (data.origin === 'grid' && over.id === 'keyboard-area') {
        if (data.index !== undefined) delete nextState[data.index];
        didChange = true;
@@ -219,16 +226,13 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
       setGridState(nextState);
       
       // GAME LOGIC
-      // 1. Increment Moves
       const newMoveCount = moveCount + 1;
       setMoveCount(newMoveCount);
 
-      // 2. Check for Match
       const currentTask = tasks[currentTaskIndex];
       if (currentTask && checkGridForWord(nextState, currentTask.text)) {
         handleTaskSuccess(currentTask);
       } else {
-          // Just speak letter if no match
           speakText(data.char);
       }
     }
@@ -237,7 +241,6 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
   const handleTaskSuccess = (task: Task) => {
     setIsProcessingSuccess(true);
     
-    // 1. Calculate Failure logic for this step
     const cleanText = task.text.replace(/-/g, '');
     const limit = cleanText.length + 3;
     const isFailedStep = moveCount > limit;
@@ -246,14 +249,11 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
         setFailedStepsCount(prev => prev + 1);
     }
 
-    // 2. Sequence
-    // Read word -> Success Sound -> Update Indicator -> Clear -> Next
     speakText(cleanText);
     
     setTimeout(() => {
         playSound('success');
         
-        // Update indicator
         setCompletedSteps(prev => {
             const next = [...prev];
             next[currentTaskIndex] = true;
@@ -261,21 +261,20 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
         });
 
         setTimeout(() => {
-            // Next Task
             const nextIndex = currentTaskIndex + 1;
             
             if (nextIndex >= tasks.length) {
                 finishGame(isFailedStep ? failedStepsCount + 1 : failedStepsCount);
             } else {
-                setGridState({}); // Clear grid
-                setMoveCount(0); // Reset moves
+                setGridState({});
+                setMoveCount(0);
                 setCurrentTaskIndex(nextIndex);
                 setIsProcessingSuccess(false);
                 announceTask(tasks[nextIndex]);
             }
-        }, 2000); // Wait after sound
+        }, 2000);
 
-    }, 1000); // Wait after speak
+    }, 1000);
   };
 
   const finishGame = (finalFailedCount: number) => {
@@ -287,12 +286,17 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
     setFinalStars(stars);
     setGameFinished(true);
     saveLetterScore(letter, stars);
-    playSound('fanfare'); // Louder fanfare
+    playSound('fanfare');
   };
 
+  // Determine key width style
   const keyWidthStyle = {
     width: `calc((100% - ${(GRID_COLS - 1) * GAP_PX}px) / ${GRID_COLS})`
   };
+
+  // Determine dynamic row count based on device
+  const activeRowCount = isMobile ? MOBILE_GRID_ROWS : GRID_ROWS;
+  const activeTotalCells = activeRowCount * GRID_COLS;
 
   if (gameFinished) {
       return (
@@ -327,7 +331,8 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
       onDragEnd={handleDragEnd}
       autoScroll={false} 
     >
-      <div className="h-[100dvh] flex flex-col items-center py-1 sm:py-4 font-sans select-none overflow-hidden bg-neutral-900">
+      {/* Mobile: pb-8, Desktop: md:pb-4 */}
+      <div className="h-[100dvh] flex flex-col items-center py-1 sm:py-4 pb-8 md:pb-4 font-sans select-none overflow-hidden bg-neutral-900">
         
         <div className="w-full max-w-[95vw] lg:max-w-6xl flex flex-col gap-2 sm:gap-4 h-full flex-1">
           
@@ -335,7 +340,8 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
           <div className="flex w-full items-center justify-between px-2">
              <button 
                 onClick={onBack}
-                className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg flex-none"
+                className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-sm flex-none
+                md:rounded-lg md:border-b-4 md:border-gray-900 md:active:border-b-0 md:active:translate-y-1 transition-all"
              >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
@@ -349,7 +355,8 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
 
              <button 
                 onClick={() => announceTask(tasks[currentTaskIndex])}
-                className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg flex items-center gap-2 shadow-lg active:scale-95 transition-transform flex-none"
+                className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-sm flex items-center gap-2 active:scale-95 transition-all flex-none
+                md:rounded-lg md:border-b-4 md:border-blue-800 md:active:border-b-0 md:active:translate-y-1"
                 title="Повторить задание"
              >
                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -359,10 +366,10 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
              </button>
           </div>
 
-          {/* Grid Area */}
-          <div className="flex-1 bg-neutral-900 rounded-xl p-1 sm:p-4 shadow-2xl border border-neutral-700 flex flex-col justify-center relative">
+          {/* Grid Area - Responsive row count */}
+          <div className="flex-1 bg-neutral-900 p-1 sm:p-4 flex flex-col justify-center relative">
             <div className="grid w-full mx-auto" style={gridStyle}>
-              {Array.from({ length: TOTAL_CELLS }).map((_, index) => {
+              {Array.from({ length: activeTotalCells }).map((_, index) => {
                 const item = gridState[index];
                 return (
                   <DroppableCell key={index} index={index}>
@@ -381,14 +388,14 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
             </div>
           </div>
 
-          {/* Progress Indicators */}
-          <div className="flex items-center justify-center gap-2 sm:gap-4 py-1 sm:py-2">
+          {/* Progress Indicators - Reduced size */}
+          <div className="flex items-center justify-center gap-2 py-1 sm:py-2">
              {completedSteps.map((isComplete, idx) => (
                  <div 
                     key={idx}
-                    className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full transition-colors duration-500 border-2 border-neutral-700 ${
-                        isComplete ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)]' : 
-                        (idx === currentTaskIndex ? 'bg-neutral-600 border-neutral-500' : 'bg-neutral-800')
+                    className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-colors duration-500 border border-neutral-700 ${
+                        isComplete ? 'bg-green-500' : 
+                        (idx === currentTaskIndex ? 'bg-neutral-500' : 'bg-neutral-800')
                     }`}
                  />
              ))}
@@ -400,7 +407,15 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
               {KEYBOARD_LAYOUT.map((row, rowIndex) => (
                 <div key={rowIndex} className="flex gap-[2px] justify-center w-full">
                   {row.map((char) => (
-                    <div key={char} className="aspect-square relative" style={keyWidthStyle}>
+                    // Responsive Aspect Ratio: 0.66 for mobile, 1 for desktop
+                    <div 
+                        key={char} 
+                        className="relative" 
+                        style={{
+                            ...keyWidthStyle, 
+                            aspectRatio: isMobile ? '0.66' : '1'
+                        }}
+                    >
                       <DraggableItem
                         id={`keyboard-${char}`}
                         char={char}

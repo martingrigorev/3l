@@ -1,5 +1,6 @@
 export const GRID_COLS = 11;
-export const GRID_ROWS = 5;
+export const GRID_ROWS = 5; // Desktop default (5 rows)
+export const MOBILE_GRID_ROWS = 3; // Mobile default (3 rows)
 export const TOTAL_CELLS = GRID_COLS * GRID_ROWS;
 
 export const VOWELS = new Set(['а', 'у', 'о', 'ы', 'и', 'э', 'я', 'ю', 'ё', 'е', 'А', 'У', 'О', 'Ы', 'И', 'Э', 'Я', 'Ю', 'Ё', 'Е']);

@@ -65,7 +65,8 @@ export default function Learning({ onBack, onSelectLetter }: LearningProps) {
        <div className="w-full max-w-5xl px-4 mb-6 flex items-center justify-between flex-none">
           <button 
             onClick={onBack}
-            className="flex items-center justify-center font-bold text-white rounded shadow-sm select-none border-b-4 transition-all bg-gray-500 border-gray-700 hover:bg-gray-400 active:border-b-0 active:translate-y-[4px] px-4 py-2 sm:px-6 sm:py-3"
+            className="flex items-center justify-center font-bold text-white rounded shadow-sm select-none border-b-4 transition-all bg-gray-500 border-gray-700 hover:bg-gray-400 active:border-b-0 active:translate-y-[4px] px-4 py-2 sm:px-6 sm:py-3
+            md:rounded-lg md:border-b-4 md:border-gray-700 md:active:border-b-0 md:active:translate-y-1"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6 mr-2">
                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
@@ -108,7 +109,9 @@ export default function Learning({ onBack, onSelectLetter }: LearningProps) {
                 <div 
                   key={char + index} 
                   onClick={() => onSelectLetter && onSelectLetter(char)}
-                  className={`rounded-xl p-3 border border-neutral-700 shadow-xl flex flex-col items-center gap-3 transition-transform hover:scale-105 cursor-pointer active:scale-95 ${hasPlayed ? 'bg-neutral-700 border-neutral-600' : 'bg-neutral-800'}`}
+                  className={`rounded-xl p-3 border border-neutral-700 shadow-xl flex flex-col items-center gap-3 transition-transform hover:scale-105 cursor-pointer active:scale-95 
+                  md:border-b-4 md:active:border-b-0 md:active:translate-y-1
+                  ${hasPlayed ? 'bg-neutral-700 border-neutral-600 md:border-neutral-800' : 'bg-neutral-800 md:border-neutral-900'}`}
                 >
                   <div className="w-16 h-16 sm:w-20 sm:h-20 aspect-square pointer-events-none">
                     <Tile char={char} className="text-2xl sm:text-3xl" />

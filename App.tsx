@@ -48,7 +48,8 @@ export default function App() {
       {/* Top/Left Half - Free Play */}
       <div 
         onClick={() => handleModeSelect('free_play')}
-        className="flex-1 bg-blue-600 hover:bg-blue-500 transition-colors cursor-pointer relative group flex flex-col items-center justify-center p-8 active:bg-blue-700 select-none"
+        className="flex-1 bg-blue-600 hover:bg-blue-500 transition-all cursor-pointer relative group flex flex-col items-center justify-center p-8 select-none
+        md:border-b-8 md:border-blue-800 md:active:border-b-0 md:active:translate-y-2"
       >
         <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity" />
         
@@ -66,7 +67,8 @@ export default function App() {
       {/* Bottom/Right Half - Learning */}
       <div 
         onClick={() => handleModeSelect('learning')}
-        className="flex-1 bg-green-600 hover:bg-green-500 transition-colors cursor-pointer relative group flex flex-col items-center justify-center p-8 active:bg-green-700 select-none border-t-4 sm:border-t-0 sm:border-l-4 border-neutral-800"
+        className="flex-1 bg-green-600 hover:bg-green-500 transition-all cursor-pointer relative group flex flex-col items-center justify-center p-8 select-none border-t-4 sm:border-t-0 sm:border-l-4 border-neutral-800
+        md:border-b-8 md:border-green-800 md:border-l-0 md:active:border-b-0 md:active:translate-y-2"
       >
         <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity" />
         
