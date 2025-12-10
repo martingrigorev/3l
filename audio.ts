@@ -1,0 +1,192 @@
+// Helper to manage voices state
+let voices: SpeechSynthesisVoice[] = [];
+
+export const initVoices = () => {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return;
+
+  const load = () => {
+    voices = window.speechSynthesis.getVoices();
+  };
+
+  load();
+  
+  // Chrome/Android loads voices asynchronously
+  if (window.speechSynthesis.onvoiceschanged !== undefined) {
+    window.speechSynthesis.onvoiceschanged = load;
+  }
+};
+
+export const playSound = (type: 'grab' | 'drop' | 'rustle' | 'success' | 'fanfare') => {
+  // Safe check for SSR or environments without AudioContext
+  const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+  if (!AudioContext) return;
+  
+  const ctx = new AudioContext();
+  const gain = ctx.createGain();
+  gain.connect(ctx.destination);
+
+  const now = ctx.currentTime;
+
+  if (type === 'grab' || type === 'drop') {
+    // "Bul'k" - Water drop/bubble sound
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    
+    // Frequency sweep down for a "bloop" effect
+    osc.frequency.setValueAtTime(400, now);
+    osc.frequency.exponentialRampToValueAtTime(150, now + 0.1);
+    
+    // Volume envelope
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.15, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+    osc.connect(gain);
+    osc.start(now);
+    osc.stop(now + 0.25);
+
+  } else if (type === 'rustle') {
+    // Rustling sound
+    const bufferSize = ctx.sampleRate * 0.2; // 200ms
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1);
+    }
+    
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 600;
+    
+    noise.connect(filter);
+    filter.connect(gain);
+    
+    gain.gain.setValueAtTime(0.0, now);
+    gain.gain.linearRampToValueAtTime(0.08, now + 0.05);
+    gain.gain.linearRampToValueAtTime(0, now + 0.2);
+    
+    noise.start(now);
+
+  } else if (type === 'success') {
+    // Pleasant major chord arpeggio (C Major: C, E, G)
+    const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+    
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      
+      const noteGain = ctx.createGain();
+      noteGain.connect(ctx.destination);
+      
+      const startTime = now + (i * 0.05);
+      
+      noteGain.gain.setValueAtTime(0, startTime);
+      noteGain.gain.linearRampToValueAtTime(0.1, startTime + 0.05);
+      noteGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.5);
+      
+      osc.connect(noteGain);
+      osc.start(startTime);
+      osc.stop(startTime + 0.6);
+    });
+  } else if (type === 'fanfare') {
+    // Louder, celebratory fanfare with dual oscillators for brassy tone
+    
+    const playTone = (freq: number, startTime: number, duration: number, volume: number) => {
+      // SAFETY CHECK: Ensure start time is never negative relative to context
+      const safeStart = Math.max(0, startTime);
+      
+      const osc = ctx.createOscillator();
+      osc.type = 'sawtooth'; // Sawtooth for brass
+      osc.frequency.value = freq;
+      
+      // Second oscillator for thickness/chorus effect (louder sound)
+      const osc2 = ctx.createOscillator();
+      osc2.type = 'square';
+      osc2.detune.value = 5; // Slight detune
+      osc2.frequency.value = freq;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 3000;
+
+      const noteGain = ctx.createGain();
+      
+      osc.connect(filter);
+      osc2.connect(filter);
+      filter.connect(noteGain);
+      noteGain.connect(ctx.destination);
+      
+      const attack = 0.05;
+      const release = 0.1;
+      
+      const attackEnd = safeStart + attack;
+      // Ensure release doesn't start before attack ends
+      // Math.max guarantees we don't go backwards in time
+      let releaseStart = safeStart + duration - release;
+      if (releaseStart < attackEnd) {
+          releaseStart = attackEnd;
+      }
+      
+      const stopTime = safeStart + duration + 0.2; // Extra tail
+
+      // Volume envelope
+      noteGain.gain.setValueAtTime(0, safeStart);
+      noteGain.gain.linearRampToValueAtTime(volume, attackEnd);
+      noteGain.gain.setValueAtTime(volume, releaseStart);
+      noteGain.gain.exponentialRampToValueAtTime(0.001, stopTime);
+      
+      osc.start(safeStart);
+      osc.stop(stopTime);
+      osc2.start(safeStart);
+      osc2.stop(stopTime);
+    };
+
+    // Intro Notes (Dun-Dun-Dun) - Louder volume (0.35)
+    const noteDur = 0.18;
+    playTone(523.25, now, noteDur, 0.35); // C5
+    playTone(659.25, now + 0.2, noteDur, 0.35); // E5
+    playTone(523.25, now + 0.4, noteDur, 0.35); // C5
+
+    // Big Final Chord (DAAAA!) - Loud volume (0.3 per note, 4 notes = very loud)
+    const chordStart = now + 0.6;
+    const chordDur = 2.5;
+    const chordVol = 0.25; 
+
+    playTone(523.25, chordStart, chordDur, chordVol); // C5
+    playTone(659.25, chordStart, chordDur, chordVol); // E5
+    playTone(783.99, chordStart, chordDur, chordVol); // G5
+    playTone(1046.50, chordStart, chordDur, chordVol); // C6
+  }
+};
+
+export const speakText = (text: string) => {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return;
+
+  // Cancel any currently playing speech
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text.toLowerCase());
+  utterance.lang = 'ru-RU';
+  utterance.rate = 0.85; // Slightly slower for clarity
+  utterance.volume = 1.0; 
+
+  if (voices.length === 0) {
+    voices = window.speechSynthesis.getVoices();
+  }
+
+  // Try to find a Russian voice
+  const ruVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('ru')) 
+               || voices.find(v => v.lang === 'ru-RU') 
+               || voices.find(v => v.lang.startsWith('ru'));
+               
+  if (ruVoice) {
+    utterance.voice = ruVoice;
+  }
+
+  window.speechSynthesis.speak(utterance);
+};
