@@ -1,11 +1,16 @@
 // Helper to manage voices state
 let voices: SpeechSynthesisVoice[] = [];
+// Keep a reference to the current utterance to prevent garbage collection on some mobile browsers (iOS Safari)
+let currentUtterance: SpeechSynthesisUtterance | null = null;
 
 export const initVoices = () => {
   if (typeof window === 'undefined' || !window.speechSynthesis) return;
 
   const load = () => {
-    voices = window.speechSynthesis.getVoices();
+    const vs = window.speechSynthesis.getVoices();
+    if (vs.length > 0) {
+      voices = vs;
+    }
   };
 
   load();
@@ -170,26 +175,42 @@ export const playSound = (type: 'grab' | 'drop' | 'rustle' | 'success' | 'fanfar
 export const speakText = (text: string) => {
   if (typeof window === 'undefined' || !window.speechSynthesis) return;
 
-  // Cancel any currently playing speech
+  // Cancel any currently playing speech to avoid overlap
   window.speechSynthesis.cancel();
 
+  // Create utterance
   const utterance = new SpeechSynthesisUtterance(text.toLowerCase());
   utterance.lang = 'ru-RU';
-  utterance.rate = 0.85; // Slightly slower for clarity
+  utterance.rate = 0.9; 
   utterance.volume = 1.0; 
 
+  // Ensure voices are loaded
   if (voices.length === 0) {
     voices = window.speechSynthesis.getVoices();
   }
 
   // Try to find a Russian voice
-  const ruVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('ru')) 
-               || voices.find(v => v.lang === 'ru-RU') 
+  // We prioritize 'ru-RU', then any 'ru'. 
+  // If none found, we rely on the browser's default for the language set above.
+  const ruVoice = voices.find(v => v.lang === 'ru-RU') 
                || voices.find(v => v.lang.startsWith('ru'));
                
   if (ruVoice) {
     utterance.voice = ruVoice;
   }
+
+  // CRITICAL: Save reference to global variable to prevent garbage collection
+  // on iOS/Safari which stops speech prematurely or prevents it from starting.
+  currentUtterance = utterance;
+  
+  utterance.onend = () => {
+    currentUtterance = null;
+  };
+  
+  utterance.onerror = (e) => {
+    console.error("Speech synthesis error", e);
+    currentUtterance = null;
+  };
 
   window.speechSynthesis.speak(utterance);
 };

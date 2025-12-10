@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="512" height="512" rx="120" fill="url(#blueGrad)"/>
+  
+  <!-- Mane/Head shape -->
+  <path fill="#ffffff" d="M256 90 c-70 0 -130 50 -140 130 c-10 30 -10 60 10 80 c -20 20 -20 50 0 70 c 30 30 80 50 130 50 s 100 -20 130 -50 c 20 -20 20 -50 0 -70 c 20 -20 20 -50 10 -80 c -10 -80 -70 -130 -140 -130 Z"/>
+  
+  <!-- Ears -->
+  <path fill="#dbeafe" d="M160 140 a 30 30 0 0 1 60 0 Z" />
+  <path fill="#dbeafe" d="M292 140 a 30 30 0 0 1 60 0 Z" />
+  
+  <!-- Muzzle area -->
+  <ellipse cx="256" cy="280" rx="90" ry="70" fill="#eff6ff"/>
+
+  <!-- Eyes -->
+  <circle cx="210" cy="230" r="18" fill="#1e3a8a"/>
+  <circle cx="302" cy="230" r="18" fill="#1e3a8a"/>
+  
+  <!-- Nose -->
+  <path fill="#1e40af" d="M236 270 h 40 l -20 30 Z" />
+  
+  <!-- Mouth -->
+  <path fill="none" stroke="#1e3a8a" stroke-width="10" stroke-linecap="round" d="M256 310 v 30 M 226 330 q 30 20 30 0 q 0 20 30 0"/>
+</svg>

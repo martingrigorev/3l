@@ -1,9 +1,18 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="h-full">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#171717" />
+    <meta name="description" content="Обучающая игра для детей: учим буквы и слоги с Львом." />
+    
     <title>Лев Учит Буквы - Liev Learn Letters</title>
+    
+    <!-- Icons and Manifest -->
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/icon.svg" />
+    <link rel="manifest" href="/manifest.json" />
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -11,6 +20,10 @@
       body {
         touch-action: none;
         overscroll-behavior: none;
+      }
+      html, body, #root {
+        height: 100%;
+        overflow: hidden;
       }
     </style>
 
@@ -27,7 +40,7 @@
 }
 </script>
 </head>
-  <body class="bg-gray-600 text-gray-100">
+  <body class="bg-neutral-900 text-gray-100">
     <div id="root"></div>
     <!-- Entry point for Vite with absolute path to ensure correct resolution -->
     <script type="module" src="/index.tsx"></script>

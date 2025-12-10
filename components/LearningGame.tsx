@@ -77,7 +77,7 @@ function KeyboardArea({ children }: { children?: React.ReactNode }) {
     data: { type: 'keyboard-area' }
   });
   return (
-    <div ref={setNodeRef} className="flex-none bg-neutral-900 rounded-xl p-1 sm:p-4 shadow-2xl border border-neutral-700">
+    <div ref={setNodeRef} className="flex-none bg-neutral-900 rounded-xl p-0 sm:p-4 shadow-2xl border border-neutral-700">
       {children}
     </div>
   );
@@ -327,7 +327,7 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
       onDragEnd={handleDragEnd}
       autoScroll={false} 
     >
-      <div className="h-[100dvh] flex flex-col items-center py-2 sm:py-4 font-sans select-none overflow-hidden bg-neutral-900">
+      <div className="h-[100dvh] flex flex-col items-center py-1 sm:py-4 font-sans select-none overflow-hidden bg-neutral-900">
         
         <div className="w-full max-w-[95vw] lg:max-w-6xl flex flex-col gap-2 sm:gap-4 h-full flex-1">
           
@@ -343,7 +343,7 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
              </button>
              
              {/* Task Prompt Display */}
-             <div className="text-xl sm:text-2xl text-white font-bold tracking-widest text-center px-2 flex-1 truncate">
+             <div className="text-xl sm:text-2xl text-white font-bold tracking-widest text-center px-2 flex-1 truncate min-w-0">
                  {task ? task.text.replace(/-/g, '').toUpperCase() : ''}
              </div>
 

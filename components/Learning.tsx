@@ -59,10 +59,10 @@ export default function Learning({ onBack, onSelectLetter }: LearningProps) {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-900 flex flex-col items-center py-6 font-sans select-none">
+    <div className="h-[100dvh] bg-neutral-900 flex flex-col items-center py-6 font-sans select-none overflow-hidden">
        
        {/* Header */}
-       <div className="w-full max-w-5xl px-4 mb-6 flex items-center justify-between">
+       <div className="w-full max-w-5xl px-4 mb-6 flex items-center justify-between flex-none">
           <button 
             onClick={onBack}
             className="flex items-center justify-center font-bold text-white rounded shadow-sm select-none border-b-4 transition-all bg-gray-500 border-gray-700 hover:bg-gray-400 active:border-b-0 active:translate-y-[4px] px-4 py-2 sm:px-6 sm:py-3"
