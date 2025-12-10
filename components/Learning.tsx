@@ -29,11 +29,16 @@ const StarIcon = ({ filled }: { filled: boolean }) => (
 
 export default function Learning({ onBack, onSelectLetter }: LearningProps) {
   const [progress, setProgress] = useState<UserProgress>({});
+  const [secretClicks, setSecretClicks] = useState(0);
 
   // Load data on mount
   useEffect(() => {
     setProgress(loadProgress());
   }, []);
+
+  const handleTitleClick = () => {
+    setSecretClicks(prev => prev + 1);
+  };
 
   const handleReset = () => {
     if (window.confirm('Вы уверены, что хотите сбросить весь прогресс обучения?')) {
@@ -68,17 +73,27 @@ export default function Learning({ onBack, onSelectLetter }: LearningProps) {
             Меню
           </button>
           
-          <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider mx-4">Обучение</h1>
-
-          <button 
-            onClick={handleReset}
-            title="Сбросить прогресс"
-            className="flex items-center justify-center font-bold text-red-400 rounded p-2 hover:bg-red-900/30 transition-colors"
+          <h1 
+            onClick={handleTitleClick}
+            className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider mx-4 cursor-pointer select-none"
           >
-             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-               <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-             </svg>
-          </button>
+            Обучение
+          </h1>
+
+          {secretClicks >= 3 ? (
+            <button 
+                onClick={handleReset}
+                title="Сбросить прогресс"
+                className="flex items-center justify-center font-bold text-red-400 rounded p-2 hover:bg-red-900/30 transition-colors"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                </svg>
+            </button>
+          ) : (
+            // Placeholder to keep layout consistent
+             <div className="w-10"></div>
+          )}
        </div>
 
        {/* Grid Content */}

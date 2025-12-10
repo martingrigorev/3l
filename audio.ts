@@ -146,16 +146,19 @@ export const playSound = (type: 'grab' | 'drop' | 'rustle' | 'success' | 'fanfar
       osc2.stop(stopTime);
     };
 
-    // Intro Notes (Dun-Dun-Dun) - Louder volume (0.35)
+    // Intro Notes (Dun-Dun-Dun) - Adjusted volume
     const noteDur = 0.18;
-    playTone(523.25, now, noteDur, 0.35); // C5
-    playTone(659.25, now + 0.2, noteDur, 0.35); // E5
-    playTone(523.25, now + 0.4, noteDur, 0.35); // C5
+    // Decreased volume from 0.35 to 0.15
+    const introVol = 0.15;
+    playTone(523.25, now, noteDur, introVol); // C5
+    playTone(659.25, now + 0.2, noteDur, introVol); // E5
+    playTone(523.25, now + 0.4, noteDur, introVol); // C5
 
-    // Big Final Chord (DAAAA!) - Loud volume (0.3 per note, 4 notes = very loud)
+    // Big Final Chord (DAAAA!)
     const chordStart = now + 0.6;
     const chordDur = 2.5;
-    const chordVol = 0.25; 
+    // Decreased volume from 0.25 to 0.1 per note (since 4 notes play simultaneously)
+    const chordVol = 0.1; 
 
     playTone(523.25, chordStart, chordDur, chordVol); // C5
     playTone(659.25, chordStart, chordDur, chordVol); // E5
