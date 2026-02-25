@@ -33,20 +33,20 @@ export default function Learning({ onBack, onSelectLetter }: LearningProps) {
 
   // Load data on mount
   useEffect(() => {
-    setProgress(loadProgress());
+    loadProgress().then(setProgress);
   }, []);
 
   const handleTitleClick = () => {
     setSecretClicks(prev => prev + 1);
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     if (window.confirm('Вы уверены, что хотите сбросить весь прогресс обучения?')) {
       // Play confirmation sound
       playSound('rustle');
       
       // Perform reset
-      resetProgress();
+      await resetProgress();
       
       // Immediate UI update
       setProgress({});

@@ -1,44 +1,43 @@
-// Simple text-based database using localStorage
-const STORAGE_KEY = 'lev_learning_progress';
-
 export interface UserProgress {
-  [letter: string]: number; // Maps a letter (e.g., "А") to a star count (0-3)
+  [letter: string]: number;
 }
 
-// Load all progress from the "database"
-export const loadProgress = (): UserProgress => {
-  if (typeof window === 'undefined') return {};
-  
+const API_URL = '/api/progress';
+
+export const loadProgress = async (): Promise<UserProgress> => {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : {};
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error('Failed to fetch progress');
+    return await res.json();
   } catch (e) {
     console.error("Failed to load progress", e);
     return {};
   }
 };
 
-// Save score for a specific letter
-export const saveLetterScore = (letter: string, stars: number) => {
-  const current = loadProgress();
-  // Only update if the new score is higher (optional, but usually preferred in games)
-  // Or just overwrite if we want to reflect the latest attempt. 
-  // For now, let's overwrite to allow re-playing.
-  current[letter] = stars;
-  
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+export const saveLetterScore = async (letter: string, stars: number) => {
+  try {
+    await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ letter, stars }),
+    });
+  } catch (e) {
+    console.error("Failed to save progress", e);
+  }
 };
 
-// Erase the entire database
-export const resetProgress = () => {
-  localStorage.removeItem(STORAGE_KEY);
+export const resetProgress = async () => {
+  try {
+    await fetch(API_URL, { method: 'DELETE' });
+  } catch (e) {
+    console.error("Failed to reset progress", e);
+  }
 };
 
-// Helper for debugging/testing: set random scores
-export const debugFillProgress = (letters: string[]) => {
-  const fakeData: UserProgress = {};
-  letters.forEach(l => {
-    fakeData[l] = Math.floor(Math.random() * 4); // 0 to 3
-  });
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(fakeData));
+// Debug helper - might need to adjust or remove since it's client-side logic trying to write to server
+export const debugFillProgress = async (letters: string[]) => {
+  for (const l of letters) {
+    await saveLetterScore(l, Math.floor(Math.random() * 4));
+  }
 };
