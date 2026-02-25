@@ -1,37 +1,46 @@
 # Lev Learn Letters - Synology Docker Setup
 
+## Option 1: Using Docker Compose (Recommended)
+
+This is the easiest way to run the project on Synology using **Container Manager** (formerly Docker).
+
+1.  **Prepare Files**:
+    *   Create a folder on your Synology NAS (e.g., `/docker/lev-learn-letters`).
+    *   Upload all project files to this folder, including `docker-compose.yml` and `Dockerfile`.
+    *   Create a `data` subfolder inside it (e.g., `/docker/lev-learn-letters/data`) to store the database.
+
+2.  **Create Project**:
+    *   Open **Synology Container Manager**.
+    *   Go to **Project** -> **Create**.
+    *   **Project Name**: `lev-learn-letters`.
+    *   **Path**: Select the folder where you uploaded the files (`/docker/lev-learn-letters`).
+    *   **Source**: Select "Create docker-compose.yml" (if you haven't uploaded it) OR "Use existing docker-compose.yml" (if you uploaded the file I provided).
+
+3.  **Run**:
+    *   Click **Next** / **Done**.
+    *   The project will build the image and start the container automatically.
+    *   The app will be available at `http://YOUR_NAS_IP:3005`.
+
+## Option 2: Manual Image Build (Legacy Method)
+
 ## 1. Build the Image
-1. Upload the project files to your Synology NAS (e.g., via File Station to a folder like `/docker/lev-learn-letters`).
-2. Open **Synology Container Manager** (or Docker).
+1. Upload the project files to your Synology NAS.
+2. Open **Synology Container Manager**.
 3. Go to **Image** -> **Build**.
-4. Select the folder where you uploaded the files (containing the `Dockerfile`).
+4. Select the folder containing the `Dockerfile`.
 5. Name the image: `lev-learn-letters:latest`.
-6. Click **Build** and wait for it to complete.
+6. Click **Build**.
 
 ## 2. Create the Container
 1. Go to **Container** -> **Create**.
-2. Select the image you just built (`lev-learn-letters:latest`).
-3. Click **Next**.
+2. Select the image `lev-learn-letters:latest`.
 
 ## 3. Port Settings
-1. In the Port Settings section, add a new rule:
-   - **Local Port**: `3005`
-   - **Container Port**: `3000`
-   - **Type**: `TCP`
-2. This ensures the app runs on port 3005 as requested.
+1. Map **Local Port** `3005` to **Container Port** `3000` (TCP).
 
-## 4. Volume Settings (Crucial for Saving Progress)
-To ensure your child's progress is saved permanently (SQLite database), you must map a volume.
-1. In the Volume Settings section, add a folder:
-   - **File/Folder**: Select a folder on your NAS (e.g., `/docker/lev-learn-letters/data`). Create it if it doesn't exist.
-   - **Mount Path**: `/app/data`
-   - **Type**: `Read/Write`
+## 4. Volume Settings (Crucial)
+1. Map a folder on your NAS (e.g., `/docker/lev-learn-letters/data`) to `/app/data` (Read/Write).
 
 ## 5. Finalize
-1. Click **Next** and then **Done**.
-2. The container should start automatically.
-3. Open your browser and go to `http://YOUR_NAS_IP:3005`.
-
-## Troubleshooting
-- If the container stops immediately, check the logs in Container Manager.
-- Ensure the mapped folder has write permissions for the Docker user (usually standard on Synology).
+1. Click **Done**.
+2. Open `http://YOUR_NAS_IP:3005`.
