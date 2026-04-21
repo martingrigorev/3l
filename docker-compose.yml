@@ -1,15 +1,13 @@
 version: '3.8'
 
 services:
-  lev-learn-letters:
-    container_name: lev-learn-letters
-    build: .
+  lev-letters-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lev-letters-app
     restart: unless-stopped
     ports:
-      - "3005:3000"
-    volumes:
-      - ./data:/app/data
-    environment:
-      - NODE_ENV=production
-      - PORT=3000
-      - DB_PATH=/app/data/progress.db
+      - "3000:80"
+    # Port 3000 is mapped to container port 80 (nginx)
+    # You can change 3000 to any other port available on your Synology

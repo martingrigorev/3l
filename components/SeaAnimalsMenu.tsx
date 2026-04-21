@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Tile } from './Tile';
-import { loadProgress, resetProgress, UserProgress } from '../storage';
+import { loadSeaAnimalsProgress, resetProgress, UserProgress } from '../storage';
+import { SEA_ANIMALS, SeaAnimal } from '../seaAnimalsData';
 import { playSound, speakText } from '../audio';
 
-const LEVEL_LETTERS = [
-  'А', 'У', 'М', 'С', 'О', 'Х', 'Р', 'Ш', 'Ы', 'Л', 'Н', 
-  'К', 'Т', 'И', 'П', 'З', 'Й', 'Г', 'В', 'Д', 'Б', 'Ж', 
-  'Е', 'Ь', 'Я', 'Ю', 'Ё', 'Ч', 'Э', 'Ц', 'Ф', 'Щ', 'Ъ'
-];
-
-interface LearningProps {
+interface SeaAnimalsMenuProps {
   onBack: () => void;
-  onSelectLetter?: (letter: string) => void;
+  onSelectAnimal: (animal: SeaAnimal) => void;
 }
 
 const StarIcon = ({ filled }: { filled: boolean }) => (
@@ -27,13 +21,12 @@ const StarIcon = ({ filled }: { filled: boolean }) => (
   </svg>
 );
 
-export default function Learning({ onBack, onSelectLetter }: LearningProps) {
+export default function SeaAnimalsMenu({ onBack, onSelectAnimal }: SeaAnimalsMenuProps) {
   const [progress, setProgress] = useState<UserProgress>({});
   const [secretClicks, setSecretClicks] = useState(0);
 
-  // Load data on mount
   useEffect(() => {
-    setProgress(loadProgress());
+    setProgress(loadSeaAnimalsProgress());
   }, []);
 
   const handleTitleClick = () => {
@@ -42,17 +35,23 @@ export default function Learning({ onBack, onSelectLetter }: LearningProps) {
       handleReset();
     } else {
       setSecretClicks(nextCount);
+      // Voice feedback for parent to know it's working
       speakText(nextCount.toString());
     }
   };
 
   const handleReset = () => {
     try {
+      // 1. Visual/Audio feedback
       speakText("Сброс");
       playSound('success');
       setProgress({});
-      localStorage.clear();
+      
+      // 2. Clear all progress keys
+      localStorage.clear(); // Nuclear option for maximum reliability
       resetProgress();
+      
+      // 3. Force instant reload
       window.location.reload();
     } catch (err) {
       localStorage.clear();
@@ -63,12 +62,10 @@ export default function Learning({ onBack, onSelectLetter }: LearningProps) {
   return (
     <div className="h-[100dvh] bg-neutral-900 flex flex-col items-center py-6 font-sans select-none overflow-hidden">
        
-       {/* Header */}
-       <div className="w-full max-w-5xl px-4 mb-6 flex items-center justify-between flex-none">
+       <div className="w-full max-w-[98vw] px-4 mb-6 flex items-center justify-between flex-none">
           <button 
             onClick={onBack}
-            className="flex items-center justify-center font-bold text-white rounded shadow-sm select-none border-b-4 transition-all bg-gray-500 border-gray-700 hover:bg-gray-400 active:border-b-0 active:translate-y-[4px] px-4 py-2 sm:px-6 sm:py-3
-            md:rounded-lg md:border-b-4 md:border-gray-700 md:active:border-b-0 md:active:translate-y-1"
+            className="flex items-center justify-center font-bold text-white rounded shadow-sm select-none border-b-4 transition-all bg-gray-500 border-gray-700 hover:bg-gray-400 active:border-b-0 active:translate-y-[4px] px-4 py-2 sm:px-6 sm:py-3"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6 mr-2">
                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
@@ -80,9 +77,9 @@ export default function Learning({ onBack, onSelectLetter }: LearningProps) {
             onClick={handleTitleClick}
             className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider mx-4 cursor-pointer select-none"
           >
-            Учим буквы
+            Морские животные 1
           </h1>
-
+          
           {secretClicks >= 3 ? (
             <button 
                 onClick={handleReset}
@@ -94,32 +91,38 @@ export default function Learning({ onBack, onSelectLetter }: LearningProps) {
                 </svg>
             </button>
           ) : (
-             <div className="w-10"></div>
+            <div className="w-10"></div>
           )}
        </div>
 
-       {/* Grid Content */}
-       <div className="flex-1 w-full max-w-5xl px-4 overflow-y-auto pb-8 custom-scrollbar">
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 sm:gap-6">
-            {LEVEL_LETTERS.map((char, index) => {
-              const score = progress[char];
+       <div className="flex-1 w-full max-w-[98vw] px-4 overflow-y-auto pb-8 custom-scrollbar">
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 sm:gap-6">
+            {SEA_ANIMALS.map((animal) => {
+              const score = progress[animal.id];
               const hasPlayed = score !== undefined;
               const displayScore = score || 0;
               
               return (
                 <div 
-                  key={char + index} 
-                  onClick={() => onSelectLetter && onSelectLetter(char)}
-                  className={`rounded-xl p-3 border border-neutral-700 shadow-xl flex flex-col items-center gap-3 transition-transform hover:scale-105 cursor-pointer active:scale-95 
-                  md:border-b-4 md:active:border-b-0 md:active:translate-y-1
-                  ${hasPlayed ? 'bg-neutral-700 border-neutral-600 md:border-neutral-800' : 'bg-neutral-800 md:border-neutral-900'}`}
+                  key={animal.id} 
+                  onClick={() => onSelectAnimal(animal)}
+                  className={`rounded-xl p-2 border border-neutral-700 shadow-xl flex flex-col items-center gap-2 transition-transform hover:scale-105 cursor-pointer active:scale-95 
+                  ${hasPlayed ? 'bg-neutral-700' : 'bg-neutral-800'}`}
                 >
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 aspect-square pointer-events-none">
-                    <Tile char={char} className="text-2xl sm:text-3xl" />
+                  <div className="w-full aspect-square relative rounded-lg overflow-hidden bg-neutral-600">
+                    <img 
+                      src={animal.image} 
+                      alt={animal.name} 
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
                   </div>
                   
-                  {/* Stars Rating */}
-                  <div className="flex gap-1">
+                  <div className="text-white text-xs sm:text-sm font-bold text-center truncate w-full px-1">
+                    {animal.name}
+                  </div>
+
+                  <div className="flex gap-1 pb-1">
                     <StarIcon filled={displayScore >= 1} />
                     <StarIcon filled={displayScore >= 2} />
                     <StarIcon filled={displayScore >= 3} />
@@ -129,7 +132,6 @@ export default function Learning({ onBack, onSelectLetter }: LearningProps) {
             })}
           </div>
        </div>
-
     </div>
   );
 }

@@ -1,43 +1,66 @@
+// Simple text-based database using localStorage
+const STORAGE_KEY = 'lev_learning_progress';
+const SEA_ANIMALS_STORAGE_KEY = 'lev_sea_animals_progress';
+
 export interface UserProgress {
-  [letter: string]: number;
+  [id: string]: number; 
 }
 
-const API_URL = '/api/progress';
-
-export const loadProgress = async (): Promise<UserProgress> => {
+// Load all progress from the "database"
+export const loadProgress = (): UserProgress => {
+  if (typeof window === 'undefined') return {};
+  
   try {
-    const res = await fetch(API_URL);
-    if (!res.ok) throw new Error('Failed to fetch progress');
-    return await res.json();
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {};
   } catch (e) {
     console.error("Failed to load progress", e);
     return {};
   }
 };
 
-export const saveLetterScore = async (letter: string, stars: number) => {
+export const loadSeaAnimalsProgress = (): UserProgress => {
+  if (typeof window === 'undefined') return {};
+  
   try {
-    await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ letter, stars }),
-    });
+    const stored = localStorage.getItem(SEA_ANIMALS_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {};
   } catch (e) {
-    console.error("Failed to save progress", e);
+    console.error("Failed to load sea animals progress", e);
+    return {};
   }
 };
 
-export const resetProgress = async () => {
-  try {
-    await fetch(API_URL, { method: 'DELETE' });
-  } catch (e) {
-    console.error("Failed to reset progress", e);
-  }
+// Save score for a specific letter
+export const saveLetterScore = (letter: string, stars: number) => {
+  const current = loadProgress();
+  current[letter] = stars;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
 };
 
-// Debug helper - might need to adjust or remove since it's client-side logic trying to write to server
-export const debugFillProgress = async (letters: string[]) => {
-  for (const l of letters) {
-    await saveLetterScore(l, Math.floor(Math.random() * 4));
-  }
+export const saveSeaAnimalScore = (animalId: string, stars: number) => {
+  const current = loadSeaAnimalsProgress();
+  current[animalId] = stars;
+  localStorage.setItem(SEA_ANIMALS_STORAGE_KEY, JSON.stringify(current));
+};
+
+// Erase the entire database
+export const resetProgress = () => {
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(SEA_ANIMALS_STORAGE_KEY);
+  // Also clear any other potential keys starting with 'lev_' just in case
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith('lev_')) {
+      localStorage.removeItem(key);
+    }
+  });
+};
+
+// Helper for debugging/testing: set random scores
+export const debugFillProgress = (letters: string[]) => {
+  const fakeData: UserProgress = {};
+  letters.forEach(l => {
+    fakeData[l] = Math.floor(Math.random() * 4); // 0 to 3
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(fakeData));
 };

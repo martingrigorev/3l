@@ -1,28 +1,24 @@
-FROM node:20-alpine
+# Stage 1: Build the React application
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
-# Install build tools for native modules (better-sqlite3)
-RUN apk add --no-cache python3 make g++
-
-COPY package.json package-lock.json* ./
+# Copy package files and install dependencies
+COPY package*.json ./
 RUN npm install
 
+# Copy source files and build
 COPY . .
-
-# Build the frontend
 RUN npm run build
 
-# Create data directory for SQLite volume
-RUN mkdir -p /app/data
+# Stage 2: Serve the application using Nginx
+FROM nginx:stable-alpine
 
-# Environment variables
-ENV NODE_ENV=production
-ENV PORT=3000
-ENV DB_PATH=/app/data/progress.db
+# Copy the built files from the previous stage
+COPY --from=build /app/dist /usr/share/nginx/html
 
-# Expose the internal port
-EXPOSE 3000
+# Expose port 80 (standard for HTTP)
+EXPOSE 80
 
-# Start the server
-CMD ["npx", "tsx", "server.ts"]
+# For Synology and Docker Compose, we map this 80 to whatever you want
+CMD ["nginx", "-g", "daemon off;"]
