@@ -35,7 +35,7 @@ const gridStyle = {
 const checkGridForWord = (state: GridState, targetWord: string): boolean => {
   const cleanTarget = targetWord.replace(/-/g, '').replace(/ /g, '').toLowerCase();
   
-  // Method 1: Check each row independently (for single-word names)
+  // Method 1: Check each row independently (compacted)
   for (let r = 0; r < GRID_ROWS; r++) {
     let rowChars = '';
     for (let c = 0; c < GRID_COLS; c++) {
@@ -46,20 +46,13 @@ const checkGridForWord = (state: GridState, targetWord: string): boolean => {
     if (rowChars.includes(cleanTarget)) return true;
   }
 
-  // Method 2: Global subsequence check
-  // This handles multi-world names split across rows AND is tolerant of extra letters
-  let gridChars = '';
+  // Method 2: Check global sequence (all letters in order across all rows)
+  // This allows multi-word names like "Рыба клоун" to be split across lines.
+  let globalChars = '';
   for (let i = 0; i < TOTAL_CELLS; i++) {
-    if (state[i]) gridChars += state[i].char.toLowerCase();
+    if (state[i]) globalChars += state[i].char.toLowerCase();
   }
-
-  let targetIdx = 0;
-  for (let i = 0; i < gridChars.length; i++) {
-    if (gridChars[i] === cleanTarget[targetIdx]) {
-      targetIdx++;
-    }
-    if (targetIdx === cleanTarget.length) return true;
-  }
+  if (globalChars.includes(cleanTarget)) return true;
 
   return false;
 };
