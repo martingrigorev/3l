@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import FreePlay from './components/FreePlay';
-import Learning from './components/Learning';
-import LearningGame from './components/LearningGame';
-import SeaAnimalsMenu from './components/SeaAnimalsMenu';
-import SeaAnimalsGame from './components/SeaAnimalsGame';
-import { initVoices, speakText } from './audio';
-import { SeaAnimal } from './seaAnimalsData';
+import FreePlay from '@/components/FreePlay';
+import Learning from '@/components/Learning';
+import LearningGame from '@/components/LearningGame';
+import SeaAnimalsMenu from '@/components/SeaAnimalsMenu';
+import SeaAnimalsGame from '@/components/SeaAnimalsGame';
+import { initVoices, speakText } from '@/audio';
+import { SeaAnimal } from '@/seaAnimalsData';
 
 type AppMode = 'menu' | 'free_play' | 'learning' | 'sea_animals';
 
