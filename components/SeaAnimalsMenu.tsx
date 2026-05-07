@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { loadSeaAnimalsProgress, resetProgress, UserProgress } from '../storage';
-import { SEA_ANIMALS, SeaAnimal } from '../seaAnimalsData';
+import { SeaAnimal } from '../seaAnimalsData';
 import { playSound, speakText } from '../audio';
 
 interface SeaAnimalsMenuProps {
   onBack: () => void;
   onSelectAnimal: (animal: SeaAnimal) => void;
+  animals: SeaAnimal[];
+  title: string;
 }
 
 const StarIcon = ({ filled }: { filled: boolean }) => (
@@ -21,7 +23,7 @@ const StarIcon = ({ filled }: { filled: boolean }) => (
   </svg>
 );
 
-export default function SeaAnimalsMenu({ onBack, onSelectAnimal }: SeaAnimalsMenuProps) {
+export default function SeaAnimalsMenu({ onBack, onSelectAnimal, animals, title }: SeaAnimalsMenuProps) {
   const [progress, setProgress] = useState<UserProgress>({});
   const [secretClicks, setSecretClicks] = useState(0);
 
@@ -77,7 +79,7 @@ export default function SeaAnimalsMenu({ onBack, onSelectAnimal }: SeaAnimalsMen
             onClick={handleTitleClick}
             className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider mx-4 cursor-pointer select-none"
           >
-            Морские животные 1
+            {title}
           </h1>
           
           {secretClicks >= 3 ? (
@@ -87,7 +89,7 @@ export default function SeaAnimalsMenu({ onBack, onSelectAnimal }: SeaAnimalsMen
                 className="flex items-center justify-center font-bold text-red-500 bg-red-500/10 rounded-full p-2 hover:bg-red-500/20 transition-all animate-pulse"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244 2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                 </svg>
             </button>
           ) : (
@@ -97,7 +99,7 @@ export default function SeaAnimalsMenu({ onBack, onSelectAnimal }: SeaAnimalsMen
 
        <div className="flex-1 w-full max-w-[98vw] px-4 overflow-y-auto pb-8 custom-scrollbar">
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 sm:gap-6">
-            {SEA_ANIMALS.map((animal) => {
+            {animals.map((animal) => {
               const score = progress[animal.id];
               const hasPlayed = score !== undefined;
               const displayScore = score || 0;

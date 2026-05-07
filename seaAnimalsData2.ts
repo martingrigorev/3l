@@ -1,0 +1,28 @@
+import { SeaAnimal } from './types';
+
+export const SEA_ANIMALS_2: SeaAnimal[] = [
+  { id: 'kashalot', name: 'Кашалот', image: '/kashalot.jpg' },
+  { id: 'narval', name: 'Нарвал', image: '/narval.jpg' },
+  { id: 'belayaakula', name: 'Белая акула', image: '/belayaakula.jpg' },
+  { id: 'korall', name: 'Коралл', image: '/korall.jpg' },
+  { id: 'morskayaiguana', name: 'Морская игуана', image: '/morskayaiguana.jpg' },
+  { id: 'gubka', name: 'Губка', image: '/gubka.jpg' },
+  { id: 'nautilus', name: 'Наутилус', image: '/nautilus.jpg' },
+  { id: 'murena', name: 'Мурена', image: '/murena.jpg' },
+  { id: 'morskayasvinya', name: 'Морская свинья', image: '/morskayasvinya.jpg' },
+  { id: 'karakatitsa', name: 'Каракатица', image: '/karakatitsa.jpg' },
+  { id: 'rybamolot', name: 'Рыба молот', image: '/rybamolot.jpg' },
+  { id: 'manta', name: 'Манта', image: '/manta.jpg' },
+  { id: 'rybalev', name: 'Рыба лев', image: '/rybalev.jpg' },
+  { id: 'siniyhirurg', name: 'Синий хирург', image: '/siniyhirurg.jpg' },
+  { id: 'rybaparusnik', name: 'Рыба парусник', image: '/rybaparusnik.jpg' },
+  { id: 'barrakuda', name: 'Барракуда', image: '/barrakuda.jpg' },
+  { id: 'zhemchuzhnitsa', name: 'Жемчужница', image: '/zhemchuzhnitsa.jpg' },
+  { id: 'grebeshok', name: 'Гребешок', image: '/grebeshok.jpg' },
+  { id: 'ustrica', name: 'Устрица', image: '/ustrica.jpg' },
+  { id: 'krabotshelnik', name: 'Краб отшельник', image: '/krabotshelnik.jpg' },
+  { id: 'morskoytarakan', name: 'Морской таракан', image: '/morskoytarakan.jpg' },
+  { id: 'rybaudilshchik', name: 'Рыба удильщик', image: '/rybaudilshchik.jpg' },
+  { id: 'chernyyzhivoglot', name: 'Чёрный живоглот', image: '/chernyyzhivoglot.jpg' },
+  { id: 'rybaluna', name: 'Рыба луна', image: '/rybaluna.jpg' },
+];
