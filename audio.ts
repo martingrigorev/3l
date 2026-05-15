@@ -210,3 +210,27 @@ export const speakText = (text: string) => {
 
   window.speechSynthesis.speak(utterance);
 };
+
+let bgAudio: HTMLAudioElement | null = null;
+
+export const startBgMusic = () => {
+    if (bgAudio) return;
+    bgAudio = new Audio('/music_bg.mp3');
+    bgAudio.loop = true;
+    bgAudio.volume = 0.1;
+    
+    const attemptPlay = () => {
+        if (!bgAudio) return;
+        bgAudio.play().then(() => {
+            document.removeEventListener('click', attemptPlay);
+            document.removeEventListener('pointerdown', attemptPlay);
+            document.removeEventListener('touchstart', attemptPlay);
+        }).catch(err => {
+            console.log("BG Music play blocked, waiting for interaction", err);
+        });
+    };
+
+    document.addEventListener('click', attemptPlay);
+    document.addEventListener('pointerdown', attemptPlay);
+    document.addEventListener('touchstart', attemptPlay);
+};

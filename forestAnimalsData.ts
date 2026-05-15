@@ -1,0 +1,28 @@
+import { SeaAnimal } from './types';
+
+export const FOREST_ANIMALS: SeaAnimal[] = [
+  { id: 'medved', name: 'Медведь', image: '/medved.jpg' },
+  { id: 'volk', name: 'Волк', image: '/volk.jpg' },
+  { id: 'lisa', name: 'Лиса', image: '/lisa.jpg' },
+  { id: 'zayac', name: 'Заяц', image: '/zayac.jpg' },
+  { id: 'belka', name: 'Белка', image: '/belka.jpg' },
+  { id: 'ezh', name: 'Ёж', image: '/ezh.jpg' },
+  { id: 'los', name: 'Лось', image: '/los.jpg' },
+  { id: 'kosulya', name: 'Косуля', image: '/kosulya.jpg' },
+  { id: 'kaban', name: 'Кабан', image: '/kaban.jpg' },
+  { id: 'barsuk', name: 'Барсук', image: '/barsuk.jpg' },
+  { id: 'vydra', name: 'Выдра', image: '/vydra.jpg' },
+  { id: 'bobr', name: 'Бобр', image: '/bobr.jpg' },
+  { id: 'rys', name: 'Рысь', image: '/rys.jpg' },
+  { id: 'rosomaha', name: 'Росомаха', image: '/rosomaha.jpg' },
+  { id: 'kunica', name: 'Куница', image: '/kunica.jpg' },
+  { id: 'enotovidnayasobaka', name: 'Енотовидная собака', image: '/enotovidnayasobaka.jpg' },
+  { id: 'laska', name: 'Ласка', image: '/laska.jpg' },
+  { id: 'sobol', name: 'Соболь', image: '/sobol.jpg' },
+  { id: 'burunduk', name: 'Бурундук', image: '/burunduk.jpg' },
+  { id: 'mysh', name: 'Мышь', image: '/mysh.jpg' },
+  { id: 'polevka', name: 'Полевка', image: '/polevka.jpg' },
+  { id: 'krot', name: 'Крот', image: '/krot.jpg' },
+  { id: 'letuchayamysh', name: 'Летучая мышь', image: '/letuchayamysh.jpg' },
+  { id: 'dyatel', name: 'Дятел', image: '/dyatel.jpg' },
+];

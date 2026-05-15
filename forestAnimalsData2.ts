@@ -1,0 +1,28 @@
+import { SeaAnimal } from './types';
+
+export const FOREST_ANIMALS_2: SeaAnimal[] = [
+  { id: 'dikobraz', name: 'Дикобраз', image: '/dikobraz.jpg' },
+  { id: 'zayac-belyak', name: 'Заяц беляк', image: '/zayac-belyak.jpg' },
+  { id: 'horek', name: 'Хорёк', image: '/horek.jpg' },
+  { id: 'norka', name: 'Норка', image: '/norka.jpg' },
+  { id: 'olen', name: 'Олень', image: '/olen.jpg' },
+  { id: 'zayac-rusak', name: 'Заяц русак', image: '/zayac-rusak.jpg' },
+  { id: 'karakal', name: 'Каракал', image: '/karakal.jpg' },
+  { id: 'blagorodnyy-olen', name: 'Благородный олень', image: '/blagorodnyy-olen.jpg' },
+  { id: 'evropeyskaya-norka', name: 'Европейская норка', image: '/evropeyskaya-norka.jpg' },
+  { id: 'lesnaya-sonya', name: 'Лесная соня', image: '/lesnaya-sonya.jpg' },
+  { id: 'gornostay', name: 'Горностай', image: '/gornostay.jpg' },
+  { id: 'kedrovka', name: 'Кедровка', image: '/kedrovka.jpg' },
+  { id: 'lesnoy-kot', name: 'Лесной кот', image: '/lesnoy-kot.jpg' },
+  { id: 'oreshnikovaya-sonya', name: 'Орешниковая соня', image: '/oreshnikovaya-sonya.jpg' },
+  { id: 'laska2', name: 'Ласка', image: '/laska2.jpg' },
+  { id: 'zvezdonos', name: 'Звездонос', image: '/zvezdonos.jpg' },
+  { id: 'seraya-lisica', name: 'Серая лисица', image: '/seraya-lisica.jpg' },
+  { id: 'manul', name: 'Манул', image: '/manul.jpg' },
+  { id: 'kabarga', name: 'Кабарга', image: '/kabarga.jpg' },
+  { id: 'indiyskiy-dikobraz', name: 'Индийский дикобраз', image: '/indiyskiy-dikobraz.jpg' },
+  { id: 'skuns', name: 'Скунс', image: '/skuns.jpg' },
+  { id: 'shakal', name: 'Шакал', image: '/shakal.jpg' },
+  { id: 'suslik', name: 'Суслик', image: '/suslik.jpg' },
+  { id: 'surok', name: 'Сурок', image: '/surok.jpg' },
+];

@@ -19,7 +19,7 @@ import { DroppableCell } from './DroppableCell';
 import { DraggableItem } from './DraggableItem';
 import { Tile } from './Tile';
 import { playSound, speakText, initVoices } from '../audio';
-import { saveSeaAnimalScore } from '../storage';
+import { UserProgress } from '../storage';
 import { SeaAnimal } from '../seaAnimalsData';
 
 const GRID_COLS = 12;
@@ -75,12 +75,13 @@ const customCollisionDetection: CollisionDetection = (args) => {
   return closestCenter(args);
 };
 
-interface SeaAnimalsGameProps {
+interface AnimalsGameProps {
   animal: SeaAnimal;
   onBack: () => void;
+  saveScore: (id: string, stars: number) => void;
 }
 
-export default function SeaAnimalsGame({ animal, onBack }: SeaAnimalsGameProps) {
+export default function AnimalsGame({ animal, onBack, saveScore }: AnimalsGameProps) {
   const [gridState, setGridState] = useState<GridState>({});
   const [activeDragData, setActiveDragData] = useState<DragData | null>(null);
   const [dragSize, setDragSize] = useState<{width: number, height: number} | null>(null);
@@ -193,7 +194,7 @@ export default function SeaAnimalsGame({ animal, onBack }: SeaAnimalsGameProps) 
 
     setFinalStars(stars);
     setGameFinished(true);
-    saveSeaAnimalScore(animal.id, stars);
+    saveScore(animal.id, stars);
     playSound('fanfare');
   };
 

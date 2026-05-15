@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { loadSeaAnimalsProgress, resetProgress, UserProgress } from '../storage';
+import { resetProgress, UserProgress } from '../storage';
 import { SeaAnimal } from '../seaAnimalsData';
 import { playSound, speakText } from '../audio';
 
-interface SeaAnimalsMenuProps {
+interface AnimalsMenuProps {
   onBack: () => void;
   onSelectAnimal: (animal: SeaAnimal) => void;
   animals: SeaAnimal[];
   title: string;
+  loadProgress: () => UserProgress;
 }
 
 const StarIcon = ({ filled }: { filled: boolean }) => (
@@ -23,13 +24,13 @@ const StarIcon = ({ filled }: { filled: boolean }) => (
   </svg>
 );
 
-export default function SeaAnimalsMenu({ onBack, onSelectAnimal, animals, title }: SeaAnimalsMenuProps) {
+export default function AnimalsMenu({ onBack, onSelectAnimal, animals, title, loadProgress }: AnimalsMenuProps) {
   const [progress, setProgress] = useState<UserProgress>({});
   const [secretClicks, setSecretClicks] = useState(0);
 
   useEffect(() => {
-    setProgress(loadSeaAnimalsProgress());
-  }, []);
+    setProgress(loadProgress());
+  }, [loadProgress]);
 
   const handleTitleClick = () => {
     const nextCount = secretClicks + 1;

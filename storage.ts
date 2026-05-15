@@ -1,6 +1,8 @@
 // Simple text-based database using localStorage
 const STORAGE_KEY = 'lev_learning_progress';
 const SEA_ANIMALS_STORAGE_KEY = 'lev_sea_animals_progress';
+const FOREST_ANIMALS_STORAGE_KEY = 'lev_forest_animals_progress';
+const FOREST_ANIMALS_2_STORAGE_KEY = 'lev_forest_animals_2_progress';
 
 export interface UserProgress {
   [id: string]: number; 
@@ -31,6 +33,30 @@ export const loadSeaAnimalsProgress = (): UserProgress => {
   }
 };
 
+export const loadForestAnimalsProgress = (): UserProgress => {
+  if (typeof window === 'undefined') return {};
+  
+  try {
+    const stored = localStorage.getItem(FOREST_ANIMALS_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch (e) {
+    console.error("Failed to load forest animals progress", e);
+    return {};
+  }
+};
+
+export const loadForestAnimals2Progress = (): UserProgress => {
+  if (typeof window === 'undefined') return {};
+  
+  try {
+    const stored = localStorage.getItem(FOREST_ANIMALS_2_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch (e) {
+    console.error("Failed to load forest animals 2 progress", e);
+    return {};
+  }
+};
+
 // Save score for a specific letter
 export const saveLetterScore = (letter: string, stars: number) => {
   const current = loadProgress();
@@ -42,6 +68,18 @@ export const saveSeaAnimalScore = (animalId: string, stars: number) => {
   const current = loadSeaAnimalsProgress();
   current[animalId] = stars;
   localStorage.setItem(SEA_ANIMALS_STORAGE_KEY, JSON.stringify(current));
+};
+
+export const saveForestAnimalScore = (animalId: string, stars: number) => {
+  const current = loadForestAnimalsProgress();
+  current[animalId] = stars;
+  localStorage.setItem(FOREST_ANIMALS_STORAGE_KEY, JSON.stringify(current));
+};
+
+export const saveForestAnimal2Score = (animalId: string, stars: number) => {
+  const current = loadForestAnimals2Progress();
+  current[animalId] = stars;
+  localStorage.setItem(FOREST_ANIMALS_2_STORAGE_KEY, JSON.stringify(current));
 };
 
 // Erase the entire database
