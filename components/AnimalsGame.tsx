@@ -32,27 +32,87 @@ const gridStyle = {
   gap: `${GAP_PX}px`
 };
 
-const checkGridForWord = (state: GridState, targetWord: string): boolean => {
-  const cleanTarget = targetWord.replace(/-/g, '').replace(/ /g, '').toLowerCase();
-  
-  // Method 1: Check each row independently (compacted)
-  for (let r = 0; r < GRID_ROWS; r++) {
-    let rowChars = '';
-    for (let c = 0; c < GRID_COLS; c++) {
-      const idx = r * GRID_COLS + c;
-      const item = state[idx];
-      if (item) rowChars += item.char.toLowerCase();
+const charMatches = (charA?: string, charB?: string): boolean => {
+  if (!charA || !charB) return false;
+  const a = charA.toLowerCase();
+  const b = charB.toLowerCase();
+  if (a === b) return true;
+  if ((a === 'ё' && b === 'е') || (a === 'е' && b === 'ё')) return true;
+  return false;
+};
+
+const findWordContiguousInRow = (state: GridState, w: string, r: number): number[] => {
+  const matches: number[] = [];
+  const wLen = w.length;
+  if (wLen === 0 || wLen > GRID_COLS) return matches;
+
+  for (let c = 0; c <= GRID_COLS - wLen; c++) {
+    let match = true;
+    for (let k = 0; k < wLen; k++) {
+      const item = state[r * GRID_COLS + c + k];
+      if (!item || !charMatches(item.char, w[k])) {
+        match = false;
+        break;
+      }
     }
-    if (rowChars.includes(cleanTarget)) return true;
+    if (match) {
+      matches.push(c);
+    }
+  }
+  return matches;
+};
+
+const checkGridForWord = (state: GridState, targetWord: string): boolean => {
+  const cleanWord = targetWord.replace(/[-]/g, ' ').replace(/\s+/g, ' ').trim();
+  const words = cleanWord.split(' ').filter(Boolean);
+  if (words.length === 0) return false;
+
+  // Single-word animal: letters must be strictly contiguous without spaces
+  if (words.length === 1) {
+    const word = words[0];
+    for (let r = 0; r < GRID_ROWS; r++) {
+      if (findWordContiguousInRow(state, word, r).length > 0) {
+        return true;
+      }
+    }
+    return false;
   }
 
-  // Method 2: Check global sequence (all letters in order across all rows)
-  // This allows multi-word names like "Рыба клоун" to be split across lines.
-  let globalChars = '';
-  for (let i = 0; i < TOTAL_CELLS; i++) {
-    if (state[i]) globalChars += state[i].char.toLowerCase();
+  // Multi-word animal (e.g. 2 words: "Рыба клоун", "Божья коровка"):
+  // Option 1: Both words on the SAME row (separated by spaces or adjacent, with word1 before word2)
+  for (let r = 0; r < GRID_ROWS; r++) {
+    const starts1 = findWordContiguousInRow(state, words[0], r);
+    const starts2 = findWordContiguousInRow(state, words[1], r);
+
+    for (const c1 of starts1) {
+      const end1 = c1 + words[0].length;
+      for (const c2 of starts2) {
+        if (c2 >= end1) {
+          let onlySpacesBetween = true;
+          for (let emptyCol = end1; emptyCol < c2; emptyCol++) {
+            if (state[r * GRID_COLS + emptyCol]) {
+              onlySpacesBetween = false;
+              break;
+            }
+          }
+          if (onlySpacesBetween) {
+            return true;
+          }
+        }
+      }
+    }
   }
-  if (globalChars.includes(cleanTarget)) return true;
+
+  // Option 2: The two words on DIFFERENT rows (word 1 contiguous in r1, word 2 contiguous in r2)
+  for (let r1 = 0; r1 < GRID_ROWS; r1++) {
+    if (findWordContiguousInRow(state, words[0], r1).length > 0) {
+      for (let r2 = 0; r2 < GRID_ROWS; r2++) {
+        if (r1 !== r2 && findWordContiguousInRow(state, words[1], r2).length > 0) {
+          return true;
+        }
+      }
+    }
+  }
 
   return false;
 };

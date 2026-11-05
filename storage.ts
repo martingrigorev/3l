@@ -3,6 +3,7 @@ const STORAGE_KEY = 'lev_learning_progress';
 const SEA_ANIMALS_STORAGE_KEY = 'lev_sea_animals_progress';
 const FOREST_ANIMALS_STORAGE_KEY = 'lev_forest_animals_progress';
 const FOREST_ANIMALS_2_STORAGE_KEY = 'lev_forest_animals_2_progress';
+const INSECTS_1_STORAGE_KEY = 'lev_insects_1_progress';
 
 export interface UserProgress {
   [id: string]: number; 
@@ -57,6 +58,18 @@ export const loadForestAnimals2Progress = (): UserProgress => {
   }
 };
 
+export const loadInsects1Progress = (): UserProgress => {
+  if (typeof window === 'undefined') return {};
+  
+  try {
+    const stored = localStorage.getItem(INSECTS_1_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch (e) {
+    console.error("Failed to load insects 1 progress", e);
+    return {};
+  }
+};
+
 // Save score for a specific letter
 export const saveLetterScore = (letter: string, stars: number) => {
   const current = loadProgress();
@@ -80,6 +93,12 @@ export const saveForestAnimal2Score = (animalId: string, stars: number) => {
   const current = loadForestAnimals2Progress();
   current[animalId] = stars;
   localStorage.setItem(FOREST_ANIMALS_2_STORAGE_KEY, JSON.stringify(current));
+};
+
+export const saveInsects1Score = (animalId: string, stars: number) => {
+  const current = loadInsects1Progress();
+  current[animalId] = stars;
+  localStorage.setItem(INSECTS_1_STORAGE_KEY, JSON.stringify(current));
 };
 
 // Erase the entire database

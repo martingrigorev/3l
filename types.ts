@@ -14,3 +14,9 @@ export interface DragData {
   id?: string; // Only present if moving from grid
   index?: number; // Only present if moving from grid
 }
+
+export interface SeaAnimal {
+  id: string;
+  name: string;
+  image: string;
+}

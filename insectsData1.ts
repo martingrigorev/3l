@@ -1,0 +1,28 @@
+import { SeaAnimal } from './types';
+
+export const INSECTS_1: SeaAnimal[] = [
+  { id: 'muravey', name: 'Муравей', image: '/muravey.png' },
+  { id: 'pchela', name: 'Пчела', image: '/pchela.png' },
+  { id: 'osa', name: 'Оса', image: '/osa.png' },
+  { id: 'shmel', name: 'Шмель', image: '/shmel.png' },
+  { id: 'babochka', name: 'Бабочка', image: '/babochka.png' },
+  { id: 'mol', name: 'Моль', image: '/mol.png' },
+  { id: 'komar', name: 'Комар', image: '/komar.png' },
+  { id: 'muha', name: 'Муха', image: '/muha.png' },
+  { id: 'zhuk', name: 'Жук', image: '/zhuk.png' },
+  { id: 'bozhya_korovka', name: 'Божья коровка', image: '/bozhya_korovka.png' },
+  { id: 'strekoza', name: 'Стрекоза', image: '/strekoza.png' },
+  { id: 'kuznechik', name: 'Кузнечик', image: '/kuznechik.png' },
+  { id: 'sverchok', name: 'Сверчок', image: '/sverchok.png' },
+  { id: 'sarancha', name: 'Саранча', image: '/sarancha.png' },
+  { id: 'tarakan', name: 'Таракан', image: '/tarakan.png' },
+  { id: 'bogomol', name: 'Богомол', image: '/bogomol.png' },
+  { id: 'bloha', name: 'Блоха', image: '/bloha.png' },
+  { id: 'vosh', name: 'Вошь', image: '/vosh.png' },
+  { id: 'cikada', name: 'Цикада', image: '/cikada.png' },
+  { id: 'klop', name: 'Клоп', image: '/klop.png' },
+  { id: 'zhuzhelitsa', name: 'Жужелица', image: '/zhuzhelitsa.png' },
+  { id: 'mayskiy_zhuk', name: 'Майский жук', image: '/mayskiy_zhuk.png' },
+  { id: 'svetlyachok', name: 'Светлячок', image: '/svetlyachok.png' },
+  { id: 'motylek', name: 'Мотылёк', image: '/motylek.png' },
+];
