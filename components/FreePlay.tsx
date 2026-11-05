@@ -71,7 +71,7 @@ function KeyboardArea({ children }: { children?: React.ReactNode }) {
     data: { type: 'keyboard-area' }
   });
   return (
-    <div ref={setNodeRef} className="flex-none bg-neutral-900 w-full">
+    <div ref={setNodeRef} className="flex-none bg-neutral-800 w-full">
       {children}
     </div>
   );
@@ -235,9 +235,9 @@ export default function FreePlay({ onBack }: FreePlayProps) {
     }
 
     if (over.id.toString().startsWith('cell-')) {
-      const targetIndex = over.data.current?.index as number;
+      const targetIndex = over.data.current?.index ?? parseInt(over.id.toString().replace('cell-', ''), 10);
 
-      if (targetIndex !== undefined) {
+      if (!isNaN(targetIndex)) {
         const nextState = { ...gridState };
         const existingItem = nextState[targetIndex];
         let didChange = false;
@@ -279,6 +279,31 @@ export default function FreePlay({ onBack }: FreePlayProps) {
     }
   }, [gridState]); 
 
+  const handleKeyClick = (char: string) => {
+    let targetIndex = -1;
+    for (let i = 0; i < activeTotalCells; i++) {
+      if (!gridState[i]) {
+        targetIndex = i;
+        break;
+      }
+    }
+    if (targetIndex !== -1) {
+      const currentGridState = gridState;
+      const nextState = { ...gridState };
+      const newId = `placed-${char}-${Date.now()}-${Math.random()}`;
+      nextState[targetIndex] = { char, id: newId };
+      setHistory(prev => [...prev, currentGridState]);
+      setGridState(nextState);
+      playSound('drop');
+      const word = getConnectedWord(nextState, targetIndex);
+      if (word.length >= 2) {
+        speakText(word);
+      } else {
+        speakText(char);
+      }
+    }
+  };
+
   const handleGridClick = (index: number, char: string) => {
     const col = index % GRID_COLS;
     const isStartOfWord = col === 0 || !gridState[index - 1];
@@ -308,7 +333,7 @@ export default function FreePlay({ onBack }: FreePlayProps) {
       autoScroll={false} 
     >
       {/* Mobile: pb-8, Desktop: md:pb-4 */}
-      <div className="h-[100dvh] flex flex-col items-center py-4 pb-8 md:pb-4 font-sans select-none overflow-hidden bg-neutral-900">
+      <div className="h-[100dvh] flex flex-col items-center py-4 pb-8 md:pb-4 font-sans select-none overflow-hidden bg-neutral-800">
         
         <div className="w-full max-w-[95vw] lg:max-w-6xl flex flex-col gap-6 h-full flex-1">
           
@@ -337,7 +362,7 @@ export default function FreePlay({ onBack }: FreePlayProps) {
             />
             <ToolbarButton 
               color="green" 
-              onClick={handleClear}
+              onClick={handleClear} 
               label="Очистить"
               icon={
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
@@ -347,7 +372,7 @@ export default function FreePlay({ onBack }: FreePlayProps) {
             />
             <ToolbarButton 
               color="blue" 
-              onClick={handleSpeakAll}
+              onClick={handleSpeakAll} 
               label="Произнести"
               icon={
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
@@ -358,7 +383,7 @@ export default function FreePlay({ onBack }: FreePlayProps) {
           </div>
 
           {/* TOP AREA: Grid */}
-          <div className="flex-1 bg-neutral-900 rounded-xl p-1 sm:p-4 flex flex-col justify-center relative">
+          <div className="flex-1 bg-neutral-800 rounded-xl p-1 sm:p-4 flex flex-col justify-center relative">
             <div 
               className="grid w-full mx-auto"
               style={gridStyle}
@@ -399,6 +424,7 @@ export default function FreePlay({ onBack }: FreePlayProps) {
                         id={`keyboard-${char}`}
                         char={char}
                         origin="keyboard"
+                        onKeyClick={handleKeyClick}
                       />
                     </div>
                   ))}

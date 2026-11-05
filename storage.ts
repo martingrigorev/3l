@@ -4,6 +4,8 @@ const SEA_ANIMALS_STORAGE_KEY = 'lev_sea_animals_progress';
 const FOREST_ANIMALS_STORAGE_KEY = 'lev_forest_animals_progress';
 const FOREST_ANIMALS_2_STORAGE_KEY = 'lev_forest_animals_2_progress';
 const INSECTS_1_STORAGE_KEY = 'lev_insects_1_progress';
+const FURNITURE_STORAGE_KEY = 'lev_furniture_progress';
+const HOME_CHORES_STORAGE_KEY = 'lev_home_chores_progress';
 
 export interface UserProgress {
   [id: string]: number; 
@@ -70,6 +72,30 @@ export const loadInsects1Progress = (): UserProgress => {
   }
 };
 
+export const loadFurnitureProgress = (): UserProgress => {
+  if (typeof window === 'undefined') return {};
+  
+  try {
+    const stored = localStorage.getItem(FURNITURE_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch (e) {
+    console.error("Failed to load furniture progress", e);
+    return {};
+  }
+};
+
+export const loadHomeChoresProgress = (): UserProgress => {
+  if (typeof window === 'undefined') return {};
+  
+  try {
+    const stored = localStorage.getItem(HOME_CHORES_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch (e) {
+    console.error("Failed to load home chores progress", e);
+    return {};
+  }
+};
+
 // Save score for a specific letter
 export const saveLetterScore = (letter: string, stars: number) => {
   const current = loadProgress();
@@ -99,6 +125,18 @@ export const saveInsects1Score = (animalId: string, stars: number) => {
   const current = loadInsects1Progress();
   current[animalId] = stars;
   localStorage.setItem(INSECTS_1_STORAGE_KEY, JSON.stringify(current));
+};
+
+export const saveFurnitureScore = (itemId: string, stars: number) => {
+  const current = loadFurnitureProgress();
+  current[itemId] = stars;
+  localStorage.setItem(FURNITURE_STORAGE_KEY, JSON.stringify(current));
+};
+
+export const saveHomeChoresScore = (itemId: string, stars: number) => {
+  const current = loadHomeChoresProgress();
+  current[itemId] = stars;
+  localStorage.setItem(HOME_CHORES_STORAGE_KEY, JSON.stringify(current));
 };
 
 // Erase the entire database

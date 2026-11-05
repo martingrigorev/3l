@@ -22,15 +22,7 @@ import { playSound, speakText, initVoices } from '../audio';
 import { UserProgress } from '../storage';
 import { SeaAnimal } from '../seaAnimalsData';
 
-const GRID_COLS = 12;
-const GRID_ROWS = 4;
-const TOTAL_CELLS = GRID_COLS * GRID_ROWS;
 const GAP_PX = 2;
-
-const gridStyle = {
-  gridTemplateColumns: `repeat(${GRID_COLS}, minmax(0, 1fr))`,
-  gap: `${GAP_PX}px`
-};
 
 const charMatches = (charA?: string, charB?: string): boolean => {
   if (!charA || !charB) return false;
@@ -41,15 +33,15 @@ const charMatches = (charA?: string, charB?: string): boolean => {
   return false;
 };
 
-const findWordContiguousInRow = (state: GridState, w: string, r: number): number[] => {
+const findWordContiguousInRow = (state: GridState, w: string, r: number, gridCols: number): number[] => {
   const matches: number[] = [];
   const wLen = w.length;
-  if (wLen === 0 || wLen > GRID_COLS) return matches;
+  if (wLen === 0 || wLen > gridCols) return matches;
 
-  for (let c = 0; c <= GRID_COLS - wLen; c++) {
+  for (let c = 0; c <= gridCols - wLen; c++) {
     let match = true;
     for (let k = 0; k < wLen; k++) {
-      const item = state[r * GRID_COLS + c + k];
+      const item = state[r * gridCols + c + k];
       if (!item || !charMatches(item.char, w[k])) {
         match = false;
         break;
@@ -62,59 +54,56 @@ const findWordContiguousInRow = (state: GridState, w: string, r: number): number
   return matches;
 };
 
-const checkGridForWord = (state: GridState, targetWord: string): boolean => {
+const checkGridForWord = (state: GridState, targetWord: string, gridCols: number, gridRows: number): boolean => {
   const cleanWord = targetWord.replace(/[-]/g, ' ').replace(/\s+/g, ' ').trim();
   const words = cleanWord.split(' ').filter(Boolean);
   if (words.length === 0) return false;
 
-  // Single-word animal: letters must be strictly contiguous without spaces
+  // Single-word: letters must be strictly contiguous without spaces
   if (words.length === 1) {
     const word = words[0];
-    for (let r = 0; r < GRID_ROWS; r++) {
-      if (findWordContiguousInRow(state, word, r).length > 0) {
+    for (let r = 0; r < gridRows; r++) {
+      if (findWordContiguousInRow(state, word, r, gridCols).length > 0) {
         return true;
       }
     }
     return false;
   }
 
-  // Multi-word animal (e.g. 2 words: "Рыба клоун", "Божья коровка"):
-  // Option 1: Both words on the SAME row (separated by spaces or adjacent, with word1 before word2)
-  for (let r = 0; r < GRID_ROWS; r++) {
-    const starts1 = findWordContiguousInRow(state, words[0], r);
-    const starts2 = findWordContiguousInRow(state, words[1], r);
+  // Multi-word phrase (2, 3, 4+ words):
+  // Check sequential placement of words in reading order (across or down rows)
+  const canPlaceWordsFrom = (wordIndex: number, minRow: number, minCol: number): boolean => {
+    if (wordIndex >= words.length) return true;
+    const currentWord = words[wordIndex];
 
-    for (const c1 of starts1) {
-      const end1 = c1 + words[0].length;
-      for (const c2 of starts2) {
-        if (c2 >= end1) {
-          let onlySpacesBetween = true;
-          for (let emptyCol = end1; emptyCol < c2; emptyCol++) {
-            if (state[r * GRID_COLS + emptyCol]) {
-              onlySpacesBetween = false;
+    for (let r = minRow; r < gridRows; r++) {
+      const validCols = findWordContiguousInRow(state, currentWord, r, gridCols);
+      for (const c of validCols) {
+        if (r === minRow && c < minCol) continue;
+
+        // If on same row, ensure cells between previous word and current word are empty (spaces)
+        if (r === minRow && minCol > 0) {
+          let onlySpaces = true;
+          for (let emptyCol = minCol; emptyCol < c; emptyCol++) {
+            if (state[r * gridCols + emptyCol]) {
+              onlySpaces = false;
               break;
             }
           }
-          if (onlySpacesBetween) {
-            return true;
-          }
+          if (!onlySpaces) continue;
         }
-      }
-    }
-  }
 
-  // Option 2: The two words on DIFFERENT rows (word 1 contiguous in r1, word 2 contiguous in r2)
-  for (let r1 = 0; r1 < GRID_ROWS; r1++) {
-    if (findWordContiguousInRow(state, words[0], r1).length > 0) {
-      for (let r2 = 0; r2 < GRID_ROWS; r2++) {
-        if (r1 !== r2 && findWordContiguousInRow(state, words[1], r2).length > 0) {
+        const nextMinRow = r;
+        const nextMinCol = c + currentWord.length;
+        if (canPlaceWordsFrom(wordIndex + 1, nextMinRow, nextMinCol)) {
           return true;
         }
       }
     }
-  }
+    return false;
+  };
 
-  return false;
+  return canPlaceWordsFrom(0, 0, 0);
 };
 
 function KeyboardArea({ children }: { children?: React.ReactNode }) {
@@ -123,7 +112,7 @@ function KeyboardArea({ children }: { children?: React.ReactNode }) {
     data: { type: 'keyboard-area' }
   });
   return (
-    <div ref={setNodeRef} className="flex-none bg-neutral-900 w-full p-1">
+    <div ref={setNodeRef} className="flex-none bg-neutral-800 w-full p-1">
       {children}
     </div>
   );
@@ -139,9 +128,20 @@ interface AnimalsGameProps {
   animal: SeaAnimal;
   onBack: () => void;
   saveScore: (id: string, stars: number) => void;
+  gridCols?: number;
+  gridRows?: number;
 }
 
-export default function AnimalsGame({ animal, onBack, saveScore }: AnimalsGameProps) {
+export default function AnimalsGame({ animal, onBack, saveScore, gridCols = 12, gridRows = 4 }: AnimalsGameProps) {
+  const GRID_COLS = gridCols;
+  const GRID_ROWS = gridRows;
+  const TOTAL_CELLS = GRID_COLS * GRID_ROWS;
+
+  const gridStyle = {
+    gridTemplateColumns: `repeat(${GRID_COLS}, minmax(0, 1fr))`,
+    gap: `${GAP_PX}px`
+  };
+
   const [gridState, setGridState] = useState<GridState>({});
   const [activeDragData, setActiveDragData] = useState<DragData | null>(null);
   const [dragSize, setDragSize] = useState<{width: number, height: number} | null>(null);
@@ -155,7 +155,7 @@ export default function AnimalsGame({ animal, onBack, saveScore }: AnimalsGamePr
   useEffect(() => {
     initVoices();
     setTimeout(() => {
-        speakText(`Напиши слово ${animal.name}`);
+        speakText(`Напиши слово ${animal.pronunciation || animal.name}`);
     }, 800);
 
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -164,7 +164,7 @@ export default function AnimalsGame({ animal, onBack, saveScore }: AnimalsGamePr
   }, [animal]);
 
   const announceTask = () => {
-    speakText(animal.name);
+    speakText(animal.pronunciation || animal.name);
   };
 
   const sensors = useSensors(
@@ -206,8 +206,8 @@ export default function AnimalsGame({ animal, onBack, saveScore }: AnimalsGamePr
        if (data.index !== undefined) delete nextState[data.index];
        didChange = true;
     } else if (over.id.toString().startsWith('cell-')) {
-      const targetIndex = over.data.current?.index as number;
-      if (targetIndex !== undefined) {
+      const targetIndex = over.data.current?.index ?? parseInt(over.id.toString().replace('cell-', ''), 10);
+      if (!isNaN(targetIndex)) {
         if (data.origin === 'grid' && data.index !== undefined) {
           if (data.index !== targetIndex) {
             delete nextState[data.index];
@@ -226,17 +226,50 @@ export default function AnimalsGame({ animal, onBack, saveScore }: AnimalsGamePr
       setGridState(nextState);
       const newMoveCount = moveCount + 1;
       setMoveCount(newMoveCount);
-      if (checkGridForWord(nextState, animal.name)) {
+      if (checkGridForWord(nextState, animal.name, GRID_COLS, GRID_ROWS)) {
         handleSuccess();
       } else {
         speakText(data.char);
       }
     }
-  }, [gridState, moveCount, gameFinished, isProcessingSuccess, animal.name]);
+  }, [gridState, moveCount, gameFinished, isProcessingSuccess, animal.name, GRID_COLS, GRID_ROWS]);
+
+  const handleKeyClick = (char: string) => {
+    if (gameFinished || isProcessingSuccess) return;
+    let targetIndex = -1;
+    for (let i = 0; i < TOTAL_CELLS; i++) {
+      if (!gridState[i]) {
+        targetIndex = i;
+        break;
+      }
+    }
+    if (targetIndex !== -1) {
+      let nextState = { ...gridState };
+      const newId = `placed-${char}-${Date.now()}-${Math.random()}`;
+      nextState[targetIndex] = { char, id: newId };
+      setGridState(nextState);
+      playSound('drop');
+      const newMoveCount = moveCount + 1;
+      setMoveCount(newMoveCount);
+      if (checkGridForWord(nextState, animal.name, GRID_COLS, GRID_ROWS)) {
+        handleSuccess();
+      } else {
+        speakText(char);
+      }
+    }
+  };
+
+  const handleGridItemClick = (index: number, char: string) => {
+    if (gameFinished || isProcessingSuccess) return;
+    let nextState = { ...gridState };
+    delete nextState[index];
+    setGridState(nextState);
+    playSound('rustle');
+  };
 
   const handleSuccess = () => {
     setIsProcessingSuccess(true);
-    speakText(animal.name);
+    speakText(animal.pronunciation || animal.name);
     setTimeout(() => {
         playSound('success');
         setTimeout(() => {
@@ -248,14 +281,14 @@ export default function AnimalsGame({ animal, onBack, saveScore }: AnimalsGamePr
   const finishGame = () => {
     const cleanName = animal.name.replace(/ /g, '').replace(/-/g, '');
     const limit = cleanName.length + 2;
-    let stars = 3;
-    if (moveCount > limit + 4) stars = 1;
-    else if (moveCount > limit) stars = 2;
-
-    setFinalStars(stars);
+    let earnedStars = 3;
+    if (moveCount > limit + 6) earnedStars = 1;
+    else if (moveCount > limit + 2) earnedStars = 2;
+    setFinalStars(earnedStars);
     setGameFinished(true);
-    saveScore(animal.id, stars);
-    playSound('fanfare');
+    saveScore(animal.id, earnedStars);
+    playSound('success');
+    speakText("Молодец!");
   };
 
   const keyWidthStyle = {
@@ -264,8 +297,8 @@ export default function AnimalsGame({ animal, onBack, saveScore }: AnimalsGamePr
 
   if (gameFinished) {
       return (
-          <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-neutral-900 text-white p-4">
-              <div className="bg-neutral-800 p-8 rounded-2xl shadow-2xl flex flex-col items-center border border-neutral-700 animate-bounce-in">
+          <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-neutral-800 text-white p-4">
+              <div className="bg-neutral-700 p-8 rounded-2xl shadow-2xl flex flex-col items-center border border-neutral-600 animate-bounce-in">
                   <img src={animal.image} alt={animal.name} className="w-48 h-48 object-cover rounded-lg mb-4" referrerPolicy="no-referrer" />
                   <h2 className="text-4xl font-bold mb-6">Молодец!</h2>
                   <div className="flex gap-2 mb-8">
@@ -283,17 +316,17 @@ export default function AnimalsGame({ animal, onBack, saveScore }: AnimalsGamePr
 
   return (
     <DndContext sensors={sensors} collisionDetection={customCollisionDetection} onDragStart={handleDragStart} onDragEnd={handleDragEnd} autoScroll={false}>
-      <div className="h-[100dvh] flex flex-col items-center py-2 font-sans select-none overflow-hidden bg-neutral-900">
+      <div className="h-[100dvh] flex flex-col items-center py-2 font-sans select-none overflow-hidden bg-neutral-800">
         <div className="w-full max-w-[95vw] lg:max-w-6xl flex flex-col gap-1 sm:gap-2 h-full flex-1">
           
-          <div className="flex w-full items-center justify-between px-2 h-16 sm:h-20">
+          <div className="flex w-full items-center justify-center px-2 h-16 sm:h-20 gap-4">
              <button onClick={onBack} className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg border-b-2 border-gray-900 active:translate-y-0.5 transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                 </svg>
              </button>
              
-             <div className="flex flex-1 items-center justify-center gap-4 px-4 overflow-hidden">
+             <div className="flex items-center gap-4 overflow-hidden">
                 <img src={animal.image} alt={animal.name} className="w-12 h-12 sm:w-16 sm:h-16 aspect-square object-cover rounded-lg shadow-lg border border-neutral-700" referrerPolicy="no-referrer" />
                 <div className="text-lg sm:text-2xl text-white font-black tracking-widest truncate uppercase">
                     {animal.name}
@@ -308,13 +341,13 @@ export default function AnimalsGame({ animal, onBack, saveScore }: AnimalsGamePr
              </button>
           </div>
 
-          <div className="flex-1 bg-neutral-900 p-1 flex flex-col justify-center relative">
+          <div className="flex-1 bg-neutral-800 p-1 flex flex-col justify-center relative">
             <div className="grid w-full mx-auto" style={gridStyle}>
               {Array.from({ length: TOTAL_CELLS }).map((_, index) => {
                 const item = gridState[index];
                 return (
                   <DroppableCell key={index} index={index}>
-                    {item ? <DraggableItem id={item.id} char={item.char} origin="grid" index={index} disabled={isProcessingSuccess} /> : null}
+                    {item ? <DraggableItem id={item.id} char={item.char} origin="grid" index={index} disabled={isProcessingSuccess} onGridClick={handleGridItemClick} /> : null}
                   </DroppableCell>
                 );
               })}
@@ -325,26 +358,34 @@ export default function AnimalsGame({ animal, onBack, saveScore }: AnimalsGamePr
             <div className="flex flex-col gap-[2px] items-center justify-center w-full">
               {KEYBOARD_LAYOUT.map((row, rowIndex) => (
                 <div key={rowIndex} className="flex gap-[2px] justify-center w-full">
-                  {row.map((char) => (
-                    <div key={char} className="relative" style={{ ...keyWidthStyle, aspectRatio: isMobile ? '0.66' : '1' }}>
-                      <DraggableItem id={`keyboard-${char}`} char={char} origin="keyboard" disabled={isProcessingSuccess} />
-                    </div>
-                  ))}
+                  {row.map((char) => {
+                    const dragId = `keyboard-${char}`;
+                    return (
+                      <div key={char} id={`key-${char}`} style={keyWidthStyle} className="aspect-square">
+                        <DraggableItem 
+                          id={dragId} 
+                          char={char} 
+                          origin="keyboard" 
+                          disabled={isProcessingSuccess}
+                          onKeyClick={handleKeyClick}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               ))}
             </div>
           </KeyboardArea>
 
         </div>
-
-        <DragOverlay dropAnimation={null}>
-          {activeDragData ? (
-            <div style={{ width: dragSize?.width || '2rem', height: dragSize?.height || '2rem' }}>
-              <Tile char={activeDragData.char} isOverlay />
-            </div>
-          ) : null}
-        </DragOverlay>
       </div>
+      <DragOverlay dropAnimation={null}>
+        {activeDragData && dragSize ? (
+          <div style={{ width: dragSize.width, height: dragSize.height }}>
+            <Tile char={activeDragData.char} isOverlay={true} />
+          </div>
+        ) : null}
+      </DragOverlay>
     </DndContext>
   );
 }

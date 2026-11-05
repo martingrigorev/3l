@@ -10,6 +10,7 @@ interface DraggableItemProps {
   index?: number; // Needed if origin is grid
   disabled?: boolean;
   onGridClick?: (index: number, char: string) => void;
+  onKeyClick?: (char: string) => void;
 }
 
 export const DraggableItem: React.FC<DraggableItemProps> = ({ 
@@ -18,7 +19,8 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
   origin, 
   index, 
   disabled,
-  onGridClick 
+  onGridClick,
+  onKeyClick
 }) => {
   const dragData: DragData = { origin, char, id, index };
   
@@ -28,11 +30,12 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
     disabled
   });
 
-  const handleClick = () => {
-    // Only speak if it's on the grid (placed)
-    // dnd-kit normally absorbs clicks during drags, so this fires on clean clicks
+  const handleClick = (e: React.MouseEvent) => {
+    if (disabled) return;
     if (origin === 'grid' && onGridClick && index !== undefined) {
       onGridClick(index, char);
+    } else if (origin === 'keyboard' && onKeyClick) {
+      onKeyClick(char);
     }
   };
 

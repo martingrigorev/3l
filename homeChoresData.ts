@@ -1,0 +1,28 @@
+import { SeaAnimal } from './types';
+
+export const HOME_CHORES: SeaAnimal[] = [
+  { id: 'posuda', name: 'Мыть посуду', pronunciation: 'Мыть посУду', image: '/posuda.jpg' },
+  { id: 'pyl', name: 'Протирать пыль', pronunciation: 'Протирáть пы́ль', image: '/pyl.jpg' },
+  { id: 'pylesos', name: 'Пылесосить пол', pronunciation: 'Пылесóсить пóл', image: '/pylesos.jpg' },
+  { id: 'krovatka', name: 'Застилать кровать', pronunciation: 'Застилáть кровáть', image: '/krovatka.jpg' },
+  { id: 'musor', name: 'Выносить мусор', pronunciation: 'Вынóсить мýсор', image: '/musor.jpg' },
+  { id: 'poryadok', name: 'Убирать за собой', pronunciation: 'Убирáть за собóй', image: '/Poryadok.jpg' },
+  { id: 'noski', name: 'Стирать носки', pronunciation: 'Стирáть носкѝ', image: '/Noski.jpg' },
+  { id: 'belye', name: 'Вешать белье', pronunciation: 'Вéшать бельë', image: '/Belye.jpg' },
+  { id: 'odezhda', name: 'Складывать вещи', pronunciation: 'Склáдывать вéщи', image: '/Odezhda.jpg' },
+  { id: 'shkaf', name: 'Убирать шкаф', pronunciation: 'Убирáть шкáф', image: '/Shkaf.jpg' },
+  { id: 'eda', name: 'Готовить бутерброд', pronunciation: 'Готóвить бутербрóд', image: '/Eda.jpg' },
+  { id: 'stol', name: 'Накрывать на стол', pronunciation: 'Накрывáть на стóл', image: '/Stol.jpg' },
+  { id: 'prstol', name: 'Протирать стол', pronunciation: 'Протирáть стóл', image: '/prstol.jpg' },
+  { id: 'produkty', name: 'Раскладывать продукты', pronunciation: 'Расклáдывать продýкты', image: '/Produkty.jpg' },
+  { id: 'zuby', name: 'Чистить зубы', pronunciation: 'Чи́стить зýбы', image: '/Zuby.jpg' },
+  { id: 'igrushki', name: 'Убирать игрушки', pronunciation: 'Убирáть игрýшки', image: '/Igrushki.jpg' },
+  { id: 'cvety', name: 'Поливать цветы', pronunciation: 'Поливáть цветѝ', image: '/Cvety.jpg' },
+  { id: 'pitomec', name: 'Кормить питомца', pronunciation: 'Корми́ть питóмца', image: '/Pitomec.jpg' },
+  { id: 'okno', name: 'Проветривать комнату', pronunciation: 'Провéтривать кóмнату', image: '/Okno.jpg' },
+  { id: 'mesto', name: 'Класть вещи на место', pronunciation: 'Клáсть вéщи на мéсто', image: '/Mesto.jpg' },
+  { id: 'portfel', name: 'Разбирать портфель', pronunciation: 'Разбирáть портфéль', image: '/Portfel.jpg' },
+  { id: 'penal', name: 'Собирать пенал', pronunciation: 'Собирáть пенáл', image: '/Penal.jpg' },
+  { id: 'ryukzak', name: 'Собирать рюкзак', pronunciation: 'Собирáть рюкзáк', image: '/Ryukzak.jpg' },
+  { id: 'obuv', name: 'Мыть обувь', pronunciation: 'Мы́ть óбувь', image: '/Obuv.jpg' },
+];

@@ -63,7 +63,7 @@ export default function AnimalsMenu({ onBack, onSelectAnimal, animals, title, lo
   };
 
   return (
-    <div className="h-[100dvh] bg-neutral-900 flex flex-col items-center py-6 font-sans select-none overflow-hidden">
+    <div className="h-[100dvh] bg-neutral-800 flex flex-col items-center py-6 font-sans select-none overflow-hidden">
        
        <div className="w-full max-w-[98vw] px-4 mb-6 flex items-center justify-between flex-none">
           <button 

@@ -168,14 +168,30 @@ export const playSound = (type: 'grab' | 'drop' | 'rustle' | 'success' | 'fanfar
   }
 };
 
+export const cleanTextForSpeech = (text: string): string => {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[áàäâ]/g, 'а')
+    .replace(/[éèëê]/g, 'е')
+    .replace(/[íìïî]/g, 'и')
+    .replace(/[óòöô]/g, 'о')
+    .replace(/[úùüû]/g, 'у')
+    .replace(/[ýÿ]/g, 'ы')
+    .replace(/[ѝ]/g, 'и')
+    .replace(/[ѐ]/g, 'е');
+};
+
 export const speakText = (text: string) => {
   if (typeof window === 'undefined' || !window.speechSynthesis) return;
 
   // Cancel any currently playing speech to avoid overlap
   window.speechSynthesis.cancel();
 
+  const cleanedText = cleanTextForSpeech(text);
   // Create utterance
-  const utterance = new SpeechSynthesisUtterance(text.toLowerCase());
+  const utterance = new SpeechSynthesisUtterance(cleanedText);
   utterance.lang = 'ru-RU';
   utterance.rate = 0.9; 
   utterance.volume = 1.0; 
@@ -203,8 +219,10 @@ export const speakText = (text: string) => {
     currentUtterance = null;
   };
   
-  utterance.onerror = (e) => {
-    console.error("Speech synthesis error", e);
+  utterance.onerror = (e: any) => {
+    if (e && e.error !== 'canceled' && e.error !== 'interrupted') {
+      console.warn("Speech synthesis notice:", e);
+    }
     currentUtterance = null;
   };
 

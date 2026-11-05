@@ -19,4 +19,5 @@ export interface SeaAnimal {
   id: string;
   name: string;
   image: string;
+  pronunciation?: string;
 }

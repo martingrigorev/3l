@@ -78,7 +78,7 @@ function KeyboardArea({ children }: { children?: React.ReactNode }) {
   });
   // Removed padding, shadows, borders for flat look
   return (
-    <div ref={setNodeRef} className="flex-none bg-neutral-900 w-full">
+    <div ref={setNodeRef} className="flex-none bg-neutral-800 w-full">
       {children}
     </div>
   );
@@ -203,8 +203,8 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
        if (data.index !== undefined) delete nextState[data.index];
        didChange = true;
     } else if (over.id.toString().startsWith('cell-')) {
-      const targetIndex = over.data.current?.index as number;
-      if (targetIndex !== undefined) {
+      const targetIndex = over.data.current?.index ?? parseInt(over.id.toString().replace('cell-', ''), 10);
+      if (!isNaN(targetIndex)) {
         const existingItem = nextState[targetIndex];
 
         if (data.origin === 'grid' && data.index !== undefined) {
@@ -237,6 +237,40 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
       }
     }
   }, [gridState, tasks, currentTaskIndex, moveCount, gameFinished, isProcessingSuccess]); 
+
+  const handleKeyClick = (char: string) => {
+    if (gameFinished || isProcessingSuccess) return;
+    let targetIndex = -1;
+    for (let i = 0; i < activeTotalCells; i++) {
+      if (!gridState[i]) {
+        targetIndex = i;
+        break;
+      }
+    }
+    if (targetIndex !== -1) {
+      let nextState = { ...gridState };
+      const newId = `placed-${char}-${Date.now()}-${Math.random()}`;
+      nextState[targetIndex] = { char, id: newId };
+      setGridState(nextState);
+      playSound('drop');
+      const newMoveCount = moveCount + 1;
+      setMoveCount(newMoveCount);
+      const currentTask = tasks[currentTaskIndex];
+      if (currentTask && checkGridForWord(nextState, currentTask.text)) {
+        handleTaskSuccess(currentTask);
+      } else {
+        speakText(char);
+      }
+    }
+  };
+
+  const handleGridItemClick = (index: number, char: string) => {
+    if (gameFinished || isProcessingSuccess) return;
+    let nextState = { ...gridState };
+    delete nextState[index];
+    setGridState(nextState);
+    playSound('rustle');
+  };
 
   const handleTaskSuccess = (task: Task) => {
     setIsProcessingSuccess(true);
@@ -300,8 +334,8 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
 
   if (gameFinished) {
       return (
-          <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-neutral-900 text-white p-4">
-              <div className="bg-neutral-800 p-8 rounded-2xl shadow-2xl flex flex-col items-center border border-neutral-700 animate-bounce-in">
+          <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-neutral-800 text-white p-4">
+              <div className="bg-neutral-700 p-8 rounded-2xl shadow-2xl flex flex-col items-center border border-neutral-600 animate-bounce-in">
                   <h2 className="text-4xl font-bold mb-6">Молодец!</h2>
                   <div className="flex gap-2 mb-8">
                       {[1, 2, 3].map(i => (
@@ -332,7 +366,7 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
       autoScroll={false} 
     >
       {/* Mobile: pb-8, Desktop: md:pb-4 */}
-      <div className="h-[100dvh] flex flex-col items-center py-1 sm:py-4 pb-8 md:pb-4 font-sans select-none overflow-hidden bg-neutral-900">
+      <div className="h-[100dvh] flex flex-col items-center py-1 sm:py-4 pb-8 md:pb-4 font-sans select-none overflow-hidden bg-neutral-800">
         
         <div className="w-full max-w-[95vw] lg:max-w-6xl flex flex-col gap-2 sm:gap-4 h-full flex-1">
           
@@ -367,7 +401,7 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
           </div>
 
           {/* Grid Area - Responsive row count */}
-          <div className="flex-1 bg-neutral-900 p-1 sm:p-4 flex flex-col justify-center relative">
+          <div className="flex-1 bg-neutral-800 p-1 sm:p-4 flex flex-col justify-center relative">
             <div className="grid w-full mx-auto" style={gridStyle}>
               {Array.from({ length: activeTotalCells }).map((_, index) => {
                 const item = gridState[index];
@@ -380,6 +414,7 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
                         origin="grid"
                         index={index}
                         disabled={isProcessingSuccess}
+                        onGridClick={handleGridItemClick}
                       />
                     ) : null}
                   </DroppableCell>
@@ -421,6 +456,7 @@ export default function LearningGame({ letter, onBack }: LearningGameProps) {
                         char={char}
                         origin="keyboard"
                         disabled={isProcessingSuccess}
+                        onKeyClick={handleKeyClick}
                       />
                     </div>
                   ))}
