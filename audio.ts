@@ -201,10 +201,15 @@ export const speakText = (text: string) => {
     voices = window.speechSynthesis.getVoices();
   }
 
-  // Try to find a Russian voice
-  // We prioritize 'ru-RU', then any 'ru'. 
-  // If none found, we rely on the browser's default for the language set above.
-  const ruVoice = voices.find(v => v.lang === 'ru-RU') 
+  // Prioritize Google Russian voice
+  const googleRuVoice = voices.find(v => 
+    v.lang.startsWith('ru') && v.name.toLowerCase().includes('google')
+  ) || voices.find(v => 
+    v.name.toLowerCase().includes('google') && (v.name.toLowerCase().includes('русск') || v.name.toLowerCase().includes('ru'))
+  );
+
+  const ruVoice = googleRuVoice 
+               || voices.find(v => v.lang === 'ru-RU') 
                || voices.find(v => v.lang.startsWith('ru'));
                
   if (ruVoice) {
